@@ -1,0 +1,1241 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#241f5e">
+<title>화정초등학교 국외 수학여행</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%92%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+:root{
+  --navy-900:#211d6b; --navy-800:#2f2a8c; --navy-700:#4841ae;
+  --brass:#ff6a4d; --brass-light:#ffb238; --brass-deep:#e2482e;
+  --parchment:#fff6e8; --paper:#fffefb; --ink:#241f3d; --ink-soft:#69618c; --ink-faint:#a89fc4;
+  --line:#f0e0ea; --stamp:#ef4d6b; --good:#0fb28f;
+  --sun:#ffb238; --sakura:#ff8fae; --mint:#0fb28f;
+  --radius:22px; --radius-sm:14px;
+  --shadow:0 2px 4px rgba(35,25,80,.05), 0 16px 32px -18px rgba(35,25,80,.32);
+  --maxw:480px; --safe-b: env(safe-area-inset-bottom, 0px);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(640px 320px at 8% -80px, rgba(255,178,56,.16), transparent 62%),
+    radial-gradient(680px 360px at 100% 0%, rgba(255,106,77,.12), transparent 60%),
+    var(--parchment);
+  color:var(--ink); font-family:'Pretendard', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
+  -webkit-font-smoothing:antialiased; min-height:100vh;
+}
+h1,h2,h3,.serif{font-family:'Jua','Pretendard',sans-serif; font-weight:400; letter-spacing:-.2px;}
+button{font-family:inherit;}
+#app{max-width:var(--maxw); margin:0 auto; min-height:100vh; background:var(--parchment); position:relative; display:flex; flex-direction:column;}
+.btn, .pill, .qtab, .quickbtn, .card, .stampcard{ transition:transform .12s, box-shadow .12s; }
+.btn:active, .pill:active, .qtab:active, .quickbtn:active, .stampcard:active, .qopt:active{ transform:scale(.96); }
+@keyframes popIn{ 0%{transform:scale(.5); opacity:0;} 60%{transform:scale(1.08); opacity:1;} 100%{transform:scale(1);} }
+@keyframes floatUp{ 0%{transform:translateY(0) scale(1); opacity:1;} 100%{transform:translateY(-46px) scale(1.3); opacity:0;} }
+@media (prefers-reduced-motion: reduce){ *{animation-duration:.001ms !important; transition-duration:.001ms !important;} }
+
+/* 히어로 헤더 */
+.hero{ background:linear-gradient(150deg, var(--navy-900) 0%, var(--navy-700) 100%); color:#f4ecd8; padding:calc(18px + env(safe-area-inset-top, 0px)) 20px 26px; position:relative; overflow:hidden; }
+.hero::before{ content:""; position:absolute; inset:0;
+  background:radial-gradient(420px 200px at 90% -40px, rgba(255,178,56,.22), transparent 60%),
+  radial-gradient(300px 180px at 6% 110%, rgba(255,106,77,.20), transparent 65%),
+  repeating-linear-gradient(115deg, rgba(255,255,255,.03) 0 2px, transparent 2px 26px); pointer-events:none; }
+.hero-top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px; position:relative;}
+.hero-title{ font-size:21px; font-weight:700; margin:0 0 2px; line-height:1.15;
+  background:linear-gradient(100deg, var(--brass-light), var(--brass) 60%); -webkit-background-clip:text; background-clip:text; color:transparent; letter-spacing:-.3px; }
+.hero-sub{margin:0; font-size:11.5px; color:#cfd6e6; opacity:.9;}
+.hero-theme{margin:2px 0 0; font-size:11px; color:var(--brass-light); opacity:.85;}
+.hero-date{display:inline-flex; align-items:center; gap:6px; margin-top:9px; padding:6px 12px;
+  background:rgba(255,255,255,.1); border:1px solid rgba(255,178,56,.4); border-radius:999px; font-size:11.5px; color:#fff6e8; font-weight:600;}
+.admin-btn{ background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.18); color:#f4ecd8; border-radius:999px;
+  padding:6px 11px; font-size:11px; display:flex; align-items:center; gap:5px; cursor:pointer; white-space:nowrap;}
+.stamp-badge{ position:relative; min-width:78px; height:78px; border-radius:50%; border:3px dashed var(--sun);
+  color:#ffe9c2; background:rgba(255,178,56,.16); display:flex; flex-direction:column; align-items:center; justify-content:center;
+  transform:rotate(-9deg); flex-shrink:0; box-shadow:0 0 0 4px rgba(255,178,56,.08); margin-top:16px;}
+.stamp-badge b{font-family:'Jua','Pretendard',sans-serif; font-weight:400; font-size:21px; line-height:1; color:#fff3d9;}
+.stamp-badge span{font-size:11px; letter-spacing:.02em; margin-top:3px; text-align:center; padding:0 6px;}
+.ticket-notch{ height:15px; margin-top:-1px;
+  background:radial-gradient(circle at 10px 0, transparent 8px, var(--parchment) 9px) repeat-x; background-size:20px 15px;}
+
+/* 하단 메인 탭 */
+.bottomnav{ position:sticky; bottom:0; z-index:20; display:grid; grid-template-columns:repeat(7,1fr);
+  background:var(--paper); border-top:1px solid var(--line); padding:8px 2px calc(8px + var(--safe-b));
+  box-shadow:0 -6px 20px -14px rgba(36,31,24,.35);}
+.navbtn{ background:none; border:none; display:flex; flex-direction:column; align-items:center; gap:3px;
+  padding:4px 1px; color:var(--ink-faint); font-size:8.8px; cursor:pointer; border-radius:10px;}
+.navbtn .ic{font-size:15.5px; line-height:1;}
+.navbtn.active{color:var(--brass-deep); font-weight:700;}
+
+/* 가로 스크롤 필 */
+.subtabs{display:flex; gap:8px; overflow-x:auto; padding:14px 16px 4px; scrollbar-width:none;}
+.subtabs::-webkit-scrollbar{display:none;}
+.pill{ flex:0 0 auto; padding:9px 15px; border-radius:999px; border:1px solid var(--line); background:var(--paper);
+  color:var(--ink-soft); font-size:13px; font-weight:600; white-space:nowrap; cursor:pointer; display:flex; align-items:center; gap:5px;}
+.pill.active{background:var(--navy-800); border-color:var(--navy-800); color:#f4ecd8;}
+
+/* 정보탭: 2줄 그리드 서브탭 */
+.subtabs-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:7px; padding:14px 16px 4px;}
+.subtabs-grid .pill{ width:100%; white-space:normal; text-align:center; justify-content:center; padding:8px 3px; font-size:10.8px; line-height:1.25; }
+
+/* 미션탭: 2x2 그리드 */
+.quicktabs{display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:14px 16px 4px;}
+.qtab{ display:flex; flex-direction:column; align-items:center; gap:4px; padding:14px 8px; border:1.5px solid var(--line);
+  border-radius:14px; background:var(--paper); cursor:pointer; font-size:12.5px; font-weight:700; color:var(--ink-soft);}
+.qtab .ic{font-size:23px;}
+.qtab.active{background:var(--navy-800); border-color:var(--navy-800); color:#f4ecd8;}
+
+/* 컨텐츠 카드 */
+main{flex:1; padding-bottom:24px;}
+.wrap{padding:16px;}
+.card{background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow); margin-bottom:14px;}
+.card h3{margin:0 0 10px; font-size:15.5px; display:flex; align-items:center; gap:7px;}
+.card p{margin:0; color:var(--ink-soft); font-size:13.5px; line-height:1.6;}
+.row-between{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+.dashed{border:none; border-top:1.5px dashed var(--line); margin:12px 0;}
+.tag{display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; padding:4px 9px; border-radius:999px; background:#fff0d2; color:#b5660c;}
+.tag.green{background:#e0f7f0; color:#0d8a6d;}
+.tag.blue{background:#e7ecff; color:#3c3ba0;}
+.btn{border:none; border-radius:14px; padding:12px 16px; font-size:14px; font-weight:700; cursor:pointer; background:var(--navy-800); color:#fff6e8;}
+.btn.gold{background:linear-gradient(120deg, var(--brass), var(--brass-deep)); color:#fff9f2; box-shadow:0 8px 18px -8px rgba(226,72,46,.55);}
+.btn.ghost{background:transparent; border:1.5px solid var(--line); color:var(--ink); font-weight:600;}
+.btn.block{width:100%;}
+.btn.sm{padding:8px 12px; font-size:12.5px; border-radius:9px;}
+input[type=text], input[type=number], input[type=tel], input[type=password], textarea, select {
+  width:100%; border:1.5px solid var(--line); border-radius:11px; padding:11px 13px; font-size:14px; background:var(--paper); color:var(--ink); font-family:inherit;}
+textarea{resize:vertical;}
+label.field{display:block; font-size:12px; color:var(--ink-soft); margin:0 0 6px; font-weight:600;}
+
+.stats{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;}
+.stat{background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); padding:16px 10px; text-align:center; box-shadow:var(--shadow);}
+.stat b{display:block; font-family:'Jua','Pretendard',sans-serif; font-weight:400; font-size:25px; color:var(--navy-800);}
+.stat span{font-size:11px; color:var(--ink-soft);}
+
+/* 빠른실행 아이콘 */
+.quickgrid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.quickbtn{display:flex; flex-direction:column; align-items:center; gap:3px; padding:16px 6px; border:1px solid var(--line); border-radius:14px; background:var(--paper); cursor:pointer;}
+.quickbtn .emoji{font-size:25px;}
+.quickbtn b{font-size:12.5px;}
+.quickbtn span{font-size:10px; color:var(--ink-soft);}
+
+/* 타임라인 */
+.tl{position:relative; padding-left:20px;}
+.tl::before{content:""; position:absolute; left:5px; top:6px; bottom:6px; width:1.5px; background:var(--line);}
+.tl-item{position:relative; padding-bottom:20px;}
+.tl-item::before{content:""; position:absolute; left:-20px; top:4px; width:10px; height:10px; border-radius:50%; background:var(--brass); border:2px solid var(--paper); box-shadow:0 0 0 1.5px var(--brass);}
+.tl-time{font-size:12px; color:var(--brass-deep); font-weight:700; font-variant-numeric:tabular-nums;}
+.tl-title{font-size:14px; font-weight:600; margin:2px 0 4px;}
+
+/* 퀴즈 */
+.qcard{border:1px solid var(--line); border-radius:var(--radius); background:var(--paper); box-shadow:var(--shadow); margin-bottom:12px; overflow:hidden;}
+.qhead{padding:14px 16px; display:flex; gap:12px; align-items:center; cursor:pointer;}
+.qhead .emo{font-size:26px;}
+.qbody{padding:0 16px 16px; display:none;}
+.qbody.open{display:block;}
+.qopt{display:block; width:100%; text-align:left; padding:10px 12px; border:1.5px solid var(--line); border-radius:10px; margin-bottom:8px; background:var(--paper); font-size:13.5px; cursor:pointer;}
+.qopt.correct{border-color:var(--good); background:#eaf5ee;}
+.qopt.wrong{border-color:var(--stamp); background:#fbecea;}
+.qopt[disabled]{cursor:default;}
+.progress{height:8px; border-radius:999px; background:var(--line); overflow:hidden;}
+.progress > i{display:block; height:100%; background:linear-gradient(90deg,var(--brass),var(--brass-deep));}
+
+/* 일본어 */
+.jpcat-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:7px; padding:14px 16px 4px;}
+.jpcat-grid .pill{ width:100%; white-space:normal; text-align:center; justify-content:center; padding:9px 4px; font-size:11.5px; }
+.jpcard{border:1.5px solid var(--line); border-radius:var(--radius); background:var(--paper); box-shadow:var(--shadow); margin-bottom:10px; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; gap:10px;}
+.jpcard.on{border-color:var(--good); background:#eafaf5;}
+.jpcard-main{flex:1; cursor:pointer;}
+.jpjp{font-family:'Jua','Pretendard',sans-serif; font-weight:400; font-size:18px; color:var(--navy-800); display:flex; align-items:center; gap:6px;}
+.jpspk{font-size:14px; opacity:.7;}
+.jpromaji{font-size:12px; color:var(--brass-deep); font-weight:700; margin-top:2px;}
+.jpkr{font-size:12.5px; color:var(--ink-soft); margin-top:3px;}
+.jplearn{flex-shrink:0; border:1.5px solid var(--line); border-radius:999px; background:var(--paper); color:var(--ink-soft); font-size:11.5px; font-weight:700; padding:8px 11px; cursor:pointer; white-space:nowrap;}
+.jplearn.on{border-color:var(--good); background:var(--good); color:#fff;}
+
+/* 스탬프/사진/랭킹 */
+.pgrid2{display:grid; grid-template-columns:repeat(2,1fr); gap:10px;}
+.stampcard{border:1.5px solid var(--line); border-radius:14px; padding:14px 8px; text-align:center; background:var(--paper);}
+.stampcard.on{border-color:var(--good); background:#eaf5ee;}
+.stampicon{font-size:27px;}
+.stampname{font-size:12px; font-weight:700; margin-top:5px;}
+.stamppts{font-size:11px; color:var(--brass-deep); margin-top:2px; font-weight:700;}
+.stampcard.on .stamppts{color:var(--good);}
+.pgrid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.pgrid img{width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:12px; border:1px solid var(--line);}
+.pitem{position:relative;}
+.pcap{font-size:11px; color:var(--ink-soft); margin-top:4px;}
+.pdelete{position:absolute; top:6px; right:6px; width:26px; height:26px; border-radius:50%; border:none; background:rgba(20,20,20,.6); color:#fff; font-size:13px; font-weight:700; line-height:1; cursor:pointer; z-index:2; display:flex; align-items:center; justify-content:center;}
+.upload-box{border:1.5px dashed var(--brass); border-radius:var(--radius-sm); padding:22px 10px; text-align:center; color:var(--brass-deep); font-size:13px; font-weight:600; cursor:pointer; background:#faf5e9;}
+.gcard{background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); margin-bottom:14px;}
+.gcard-body{padding:16px;}
+.ranklist{background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden;}
+.rankrow{display:flex; align-items:center; gap:12px; padding:13px 16px; border-bottom:1px solid var(--line);}
+.rankrow:last-child{border-bottom:none;}
+.rankno{width:26px; height:26px; border-radius:50%; background:var(--parchment); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--ink-soft); flex-shrink:0;}
+.rankno.gold{background:#e9c46a;color:#5c4108;} .rankno.silver{background:#d7d7d7;color:#4a4a4a;} .rankno.bronze{background:#d7a06a;color:#4a2f0d;}
+.rankname{flex:1; font-weight:600; font-size:14px;}
+.rankscore{font-weight:700; color:var(--brass-deep); font-variant-numeric:tabular-nums;}
+.rdelete{flex-shrink:0; width:24px; height:24px; border-radius:50%; border:1px solid var(--line); background:#fff; color:#b3261e; font-size:12px; font-weight:700; line-height:1; cursor:pointer; margin-left:2px;}
+
+/* 좌석 */
+.seat{border:1px solid var(--line); border-radius:8px; background:var(--paper); color:var(--ink);}
+.seat.mine{background:#ffe9df; border-color:var(--brass); font-weight:700; color:var(--brass-deep);}
+.seat.staff{background:#eef1f6; border-color:#c9d2e0;}
+.pairs-card{background:linear-gradient(165deg,#fff9ef,#fff1de); border-color:#ffe0b0;}
+.pairgrid{display:flex; flex-direction:column; gap:9px;}
+.pairseat{display:flex; align-items:center; gap:12px; background:var(--paper); border:1.5px dashed #f0c583; border-radius:16px; padding:10px 14px;}
+.pairno{flex-shrink:0; width:30px; height:30px; border-radius:50%; background:var(--sun); color:#5c3400; font-family:'Jua','Pretendard',sans-serif; font-size:13px; display:flex; align-items:center; justify-content:center; font-weight:400;}
+.pairnames{flex:1; display:flex; align-items:center; gap:8px; font-size:14.5px; font-weight:700; flex-wrap:wrap;}
+.pairnames .amp{color:var(--ink-faint); font-weight:400; font-size:12px;}
+.pairnames .tbd{color:var(--ink-faint); font-weight:600; font-style:normal; font-size:13px;}
+.pairselrow{display:flex; gap:6px; margin-bottom:8px; align-items:center;}
+.pairselrow select{flex:1; border:1.5px solid var(--line); border-radius:11px; padding:9px 8px; font-size:13px; background:var(--paper); color:var(--ink); font-family:inherit;}
+.pairselrow .no{font-size:12px; color:var(--ink-soft); width:32px; flex-shrink:0;}
+
+/* 연락처/체크리스트 등 */
+.contact-row{display:flex; align-items:center; gap:12px; padding:13px 0;}
+.contact-row + .contact-row{border-top:1px solid var(--line);}
+.avatar{width:42px; height:42px; border-radius:50%; background:var(--parchment); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;}
+.callbtn{width:38px; height:38px; border-radius:50%; background:#eaf5ee; color:var(--good); display:flex; align-items:center; justify-content:center; text-decoration:none; font-size:16px; flex-shrink:0;}
+.chk-row{display:flex; align-items:center; gap:11px; padding:11px 0; font-size:14px;}
+.chk-row + .chk-row{border-top:1px solid var(--line);}
+.chk-box{width:21px; height:21px; border-radius:6px; border:1.5px solid var(--brass); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:13px; cursor:pointer;}
+.chk-box.on{background:var(--brass); color:#fff;}
+.chk-row.done span.lbl{text-decoration:line-through; color:var(--ink-faint);}
+#toast{position:fixed; left:50%; bottom:96px; transform:translateX(-50%); background:var(--navy-900); color:#f4ecd8; padding:10px 18px; border-radius:999px; font-size:13px; z-index:100; opacity:0; pointer-events:none; transition:opacity .25s, bottom .25s; max-width:88%; text-align:center;}
+#toast.show{opacity:1; bottom:110px;}
+.modal-back{position:fixed; inset:0; background:rgba(28,20,56,.55); z-index:200; display:flex; align-items:flex-end; justify-content:center;}
+.modal-back .sheet{width:100%; max-width:var(--maxw); background:var(--paper); border-radius:20px 20px 0 0; padding:22px 18px calc(22px + var(--safe-b)); max-height:85vh; overflow-y:auto; position:relative;}
+.modal-back.center{align-items:center;}
+.modal-back.center .sheet{border-radius:20px; max-width:340px; margin:0 16px;}
+.closeX{position:absolute; top:14px; right:16px; background:none; border:none; font-size:20px; color:var(--ink-faint); cursor:pointer;}
+.empty{text-align:center; padding:36px 16px; color:var(--ink-faint); font-size:13.5px;}
+.section-title{font-size:13px; font-weight:700; color:var(--brass-deep); margin:4px 0 10px; display:flex; align-items:center; gap:6px;}
+.banner{background:#fff2da; border:1px solid #ffd98a; color:#8a5711; border-radius:14px; padding:11px 13px; font-size:12.5px; margin-bottom:14px; line-height:1.5;}
+.banner.info{background:#eef0ff; border-color:#d2d3fb; color:#38348f;}
+::-webkit-scrollbar{width:0; height:0;}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="hero" id="hero"></header>
+  <div class="ticket-notch"></div>
+  <main id="main"></main>
+  <nav class="bottomnav" id="bottomnav"></nav>
+</div>
+<div id="toast"></div>
+<div id="modalRoot"></div>
+
+<script>
+/* 설정 데이터 */
+const TRIP = {
+  schoolName: '화정초등학교', shortName: '화정초', emoji: '🎒', title: '화정초등학교 국외 수학여행', subtitle: '6학년 · 일본 오사카·나라·교토·고베',
+  theme: '글로벌 문화체험 · 진로탐색 (의령 공동학교)', startDate: '2026-10-27', endDate: '2026-10-30', meetTime: '05:20', meetPlace: '의령교육지원청',
+  studentCount: 2, boyCount: 2, girlCount: 0, teacherCount: 1,
+};
+const ROSTER_DEFAULT = [
+  {id:1, name:'김시윤', gender:'남'}, {id:2, name:'이서준', gender:'남'},
+];
+const BUS_PAIRS_DEFAULT = [
+  {a: 1, b: 2, row: 1, col: 'L'}
+];
+const TEACHER_DEFAULT = {name:'정수미', phone:'010-0000-0000'};
+const PRINCIPAL_DEFAULT = {name:'교장 선생님', phone:''};
+const SCHOOL_CONTACT_DEFAULT = {office:''};
+
+const ITINERARY = [
+  { date:'2026-10-27', dow:'화', label:'1일차', theme:'출국 · 나라 · 오사카', meals:'조: 간편식 · 중: 고베 쿡 월드 뷔페 · 석: 쿠라스시 난바 모토마치(스시)', hotel:'트래블롯지 호텔 혼마치점 (Travelodge Honmachi Osaka)', events:[ {time:'05:20', title:'의령교육지원청 집결 · 인원 파악', tag:'집결', icon:'🚌'}, {time:'05:30', title:'김해국제공항으로 이동 (전용차량, 약 1시간)', tag:'이동', icon:'🚌'}, {time:'06:30', title:'인솔자 미팅 · 탑승 수속', tag:'출국수속', icon:'🛂'}, {time:'08:30', title:'김해국제공항 출발 → 간사이국제공항 (항공, 약 1시간 30분)', tag:'항공기', icon:'✈️'}, {time:'10:05', title:'간사이국제공항 도착 · 입국 수속 · 가이드 미팅', tag:'입국', icon:'🛬'}, {time:'11:00', title:'중식 (고베 쿡 월드 뷔페)', tag:'점심', icon:'🍱', meal:true}, {time:'11:30', title:'해유관(카이유칸) 관람', tag:'체험', icon:'🐳'}, {time:'14:00', title:'나라로 이동', tag:'이동', icon:'🚌'}, {time:'15:00', title:'동대사(도다이지) 탐방 · 나라사슴공원 체험', tag:'역사탐방', icon:'⛩️'}, {time:'17:00', title:'오사카로 이동 · 석식 (쿠라스시 난바 모토마치)', tag:'저녁', icon:'🍽️', meal:true}, {time:'19:00', title:'호텔 체크인 (트래블롯지 혼마치점)', tag:'숙소', icon:'🏨'}, {time:'22:00', title:'취침 준비 (휴대폰 사용 금지)', tag:'취침', icon:'😴'} ]},
+  { date:'2026-10-28', dow:'수', label:'2일차', theme:'교토 역사기행', meals:'조: 호텔 뷔페식 · 중: 와쇼쿠 NOW 조이 금각사(경양식) · 석: 야키니쿠 사콘 도톤보리', hotel:'트래블롯지 호텔 혼마치점 (Travelodge Honmachi Osaka)', events:[ {time:'08:00', title:'호텔 조식', tag:'조식', icon:'🍳'}, {time:'08:30', title:'교토로 이동', tag:'이동', icon:'🚌'}, {time:'10:00', title:'청수사(기요미즈데라) · 산넨자카&니넨자카 탐방', tag:'역사탐방', icon:'⛩️'}, {time:'12:00', title:'귀무덤 · 윤동주 시비(도시샤대학) · 유혼비', tag:'역사탐방', icon:'📜'}, {time:'12:40', title:'중식 (와쇼쿠 NOW 조이 금각사)', tag:'점심', icon:'🍱', meal:true}, {time:'13:40', title:'오사카로 이동', tag:'이동', icon:'🚌'}, {time:'15:00', title:'도톤보리 리버크루즈 탑승', tag:'체험', icon:'🚤'}, {time:'15:30', title:'신사이바시 & 도톤보리', tag:'체험', icon:'🌆'}, {time:'17:30', title:'석식 (야키니쿠 사콘 도톤보리) 및 호텔 이동', tag:'저녁', icon:'🍽️', meal:true}, {time:'22:00', title:'취침 준비 (휴대폰 사용 금지)', tag:'취침', icon:'😴'} ]},
+  { date:'2026-10-29', dow:'목', label:'3일차', theme:'유니버설 스튜디오 자유이용', meals:'조: 호텔 뷔페식 · 중/석: 자유식 (1인 2,000엔 현금 지급)', hotel:'트래블롯지 호텔 혼마치점 (Travelodge Honmachi Osaka)', events:[ {time:'08:00', title:'호텔 조식', tag:'조식', icon:'🍳'}, {time:'08:30', title:'유니버설 스튜디오로 이동', tag:'이동', icon:'🚌'}, {time:'10:00', title:'유니버설 스튜디오 재팬(USJ) 자유이용 (1일 입장권, 익스프레스티켓 불포함)', tag:'놀이공원', icon:'🎢'}, {time:null, title:'중식 · 석식 (자유식, 1인 2,000엔씩 2회 현금 지급)', tag:'식사', icon:'🍔', meal:true}, {time:'18:00', title:'유니버설 스튜디오 출발, 호텔 이동 · 휴식', tag:'이동', icon:'🚌'}, {time:'22:00', title:'취침 준비 (휴대폰 사용 금지)', tag:'취침', icon:'😴'} ]},
+  { date:'2026-10-30', dow:'금', label:'4일차', theme:'고베 · 오사카성 · 귀국', meals:'조: 호텔 뷔페식 · 중: 롯코 뷰 팔레스(함박스테이크 정식) · 석: 기내식(샌드위치)', hotel:'—', events:[ {time:'08:00', title:'호텔 조식', tag:'조식', icon:'🍳'}, {time:'08:40', title:'오사카성 관람 (외부)', tag:'역사탐방', icon:'🏯'}, {time:'09:30', title:'고베로 이동', tag:'이동', icon:'🚌'}, {time:'10:40', title:'롯코산 케이블카 탑승 · 가든테라스 관람', tag:'체험', icon:'🚡'}, {time:'13:00', title:'중식 (롯코 뷰 팔레스, 함박스테이크 정식)', tag:'점심', icon:'🍱', meal:true}, {time:'13:30', title:'고베 메리켄파크 탐방 · 모자이크 타운&하버랜드', tag:'체험', icon:'⚓'}, {time:'15:00', title:'간사이국제공항으로 이동', tag:'이동', icon:'🚌'}, {time:'16:30', title:'출국 수속', tag:'출국수속', icon:'🛂'}, {time:'18:50', title:'간사이국제공항 출발 (기내식)', tag:'항공기', icon:'✈️', meal:true}, {time:'20:30', title:'김해국제공항 도착 · 입국 수속', tag:'입국', icon:'🛬'}, {time:'22:00', title:'의령교육지원청 도착 · 해산', tag:'도착', icon:'🏠'} ]}
+];
+
+const PREP_TIMELINE = [
+  {title:'학생 · 학부모 사전 선호도 조사', start:'2026-03-11', end:'2026-03-18'},
+  {title:'수학여행 추진단 구성', start:'2026-05-19', end:'2026-05-19'},
+  {title:'추진단 협의회 (기본계획 의견 수렴)', start:'2026-06-08', end:'2026-06-08'},
+  {title:'기본계획(안) 수립', start:'2026-06-10', end:'2026-06-10'},
+  {title:'학교 계획(안) 수립 및 운영위원회 심의', start:'2026-06-24', end:'2026-06-24'},
+  {title:'위탁 용역 입찰 및 업체 선정', start:'2026-07-01', end:'2026-07-23'},
+  {title:'동의서 · 여권 사본 제출', start:'2026-07-01', end:'2026-07-24'},
+  {title:'국외 수학여행 위탁 용역 계약', start:'2026-08-04', end:'2026-08-04'},
+  {title:'※ 사전답사(교육청 주관, 2박3일)', start:'2026-08-25', end:'2026-08-27'},
+  {title:'국외 수학여행 신고서 제출', start:'2026-09-01', end:'2026-09-30'},
+  {title:'인솔 교원 설명회 · 사전 안전교육', start:'2026-10-06', end:'2026-10-06'},
+  {title:'수학여행 워크북 제작 · 배부', start:'2026-10-01', end:'2026-10-31'},
+  {title:'학교별 학생 안전교육 · 가정통신문 안내', start:'2026-10-01', end:'2026-10-31'},
+  {title:'수학여행 실시', start:'2026-10-27', end:'2026-10-30'},
+  {title:'사후 평가회 · 만족도 조사', start:'2026-11-06', end:'2026-11-06'}
+];
+
+const PACKING = [
+  {group:'작은 가방 (항상 소지)', items:['여권 (바로 꺼낼 수 있게 보관)','체험학습 안내 워크북 · 필기구','휴대용 물티슈 (10~30매)','지갑 (개인 경비 · 환전 용돈)','휴대전화']},
+  {group:'의류 (3박 4일분)', items:['운동화 (편한 신발!)','체육복 (잠옷 대용 가능)','속옷 3벌 · 양말 3벌','반팔티 1 · 긴팔티/셔츠 2 · 얇은 바지 2','얇은 점퍼 1 · 따뜻한 점퍼 1','큰 지퍼백(비닐팩) 3개']},
+  {group:'세면 · 개인용품', items:['칫솔 · 치약(작은 것)','샤워 타월(샤워볼)','머리빗 · 머리 고무줄','로션(작은 병)','멀미약 · 비타민','돼지코 변환 플러그(110V용)']},
+  {group:'전자기기', items:['보조배터리 (기내용 가방에 휴대 필수)','멀티 충전케이블','카메라 또는 스마트폰']},
+  {group:'기타', items:['개인 복용 약 (있는 경우)','엔화 소액 환전(용돈)']}
+];
+const PACKING_BAN = ['고급 카메라 등 고가 물품','과도한 현금','귀걸이 · 목걸이 · 반지 등 귀금속','라이터 · 가스류 등 위험물 (기내 반입 금지)','100ml 초과 액체류 (기내 휴대 제한, 위탁수하물 이용)'];
+
+const SAFETY_RULES = ['이동 시 항상 모둠별로 행동하고, 절대 혼자 이탈하지 않습니다.','선생님의 사전 허락 없이 지정 장소를 벗어나지 않습니다.','응급 상황 발생 시 즉시 담임 선생님 또는 인솔 교사에게 알립니다.','버스 · 항공기 탑승 시 안전벨트를 반드시 착용합니다.','여권은 항상 소지하되 분실하지 않도록 지퍼백 등에 별도 보관합니다.','놀이기구 탑승 시 안전 수칙을 지키고 안전바를 확인합니다.'];
+const PHONE_RULES = ['취침 시간(22:00~) 이후에는 휴대폰을 사용하지 않습니다.','이동 · 안내 시간 중에는 가방에 넣어 둡니다.','타인 동의 없이 사진 · 영상을 촬영하거나 SNS에 올리지 않습니다.'];
+const MONEY_RULES = ['유니버설 스튜디오 자유이용일(3일차)에는 점심 · 저녁 식사비로 2,000엔씩 두 번 현금을 받아요. 계획적으로 사용해요.','엔화 용돈은 정해진 금액 안에서만 사용하고, 남으면 정산해서 기록해두세요.','귀중품과 지갑은 분실하지 않도록 항상 몸에 지녀요.'];
+const OVERSEAS_RULES = ['여권 · 항공권은 선생님 안내에 따라 본인이 직접 소지·관리합니다.','단체 행동 중 사진 촬영 시 현지인에게 방해가 되지 않도록 주의합니다.','몸이 아프거나 불편하면 참지 말고 바로 선생님께 이야기합니다.'];
+const HOTEL_MANNERS = ['복도에서는 작은 소리로 말해요. 일본 호텔은 방음이 약해서 큰 소리가 옆방까지 다 들려요.','방 안에서 뛰거나 쿵쿵거리지 않아요.','문은 손잡이를 잡고 살짝 닫아요.','샤워 커튼은 꼭 욕조 안쪽으로 넣고 씻어요. 화장지 외의 휴지 · 물티슈는 변기에 버리지 않아요.','잠옷(가운) 차림으로 복도 · 로비 · 식당에 나가지 않아요.','수건 · 잠옷 · 헤어드라이어 같은 호텔 물건은 가져오지 않아요.','조식 뷔페는 먹을 만큼만 조금씩 덜어요.'];
+
+const CONTACTS_FIXED = {
+  embassy: {name:'주오사카 대한민국 총영사관 (근무시간)', phone:'+81-6-4256-2345'},
+  consular: {name:'영사콜센터 (해외무료, 24시간)', phone:'+800-2100-0404'},
+  emergency: {name:'총영사관 한국어 긴급전화', phone:'+81-90-3050-0746'},
+  hospital: {name:'오사카대학병원', phone:'+81-6-6879-5111'},
+  office: {name:'의령교육지원청 교육지원과', phone:'055-570-7131'},
+  province: {name:'경상남도교육청 안전총괄과 (주간)', phone:'055-278-1744'},
+};
+const LOCAL_GUIDES = [
+  {name:'박○○ (총괄인솔자)', role:'현지 일정 총괄 책임', phone:'010-2127-8963'},
+  {name:'박○연 (전속안내원)', role:'현지 일정 안내', phone:'010-3007-5340'},
+  {name:'유○준 (현지가이드)', role:'현지 일정 안내', phone:'080-6868-7697'},
+];
+
+const GUIDE = [
+  {name:'동대사 (도다이지)', area:'나라', lat:34.6890, lng:135.8398, icon:'⛩️', points:15, grad:['#c1521f','#f2924a'], img:'https://commons.wikimedia.org/wiki/Special:FilePath/TodaijiDaibutsu0224.jpg?width=800', desc:'나라 시대에 세워진 사찰로, 대불전 안에 있는 거대한 비로자나불(대불)이 유명해요.', tip:'대불전 규모가 크니 시간을 넉넉히 두고 관람하세요.'},
+  {name:'나라사슴공원', area:'나라', lat:34.6851, lng:135.8430, icon:'🦌', points:10, grad:['#1f8a63','#4fc98f'], img:'https://commons.wikimedia.org/wiki/Special:FilePath/Nara%20Park%2C%20November%202016.jpg?width=800', desc:'천연기념물로 지정된 사슴들이 자유롭게 돌아다니는 공원이에요.', tip:'과자를 든 채로 갑자기 뛰면 사슴이 놀랄 수 있어요.'},
+  {name:'카이유칸 (해유관)', area:'오사카', lat:34.6547, lng:135.4290, icon:'🐳', points:15, grad:['#1565a8','#4fb3e0'], img:'', desc:'세계 최대급 규모의 수족관 중 하나로, 커다란 고래상어가 사는 수조가 인상적이에요.', tip:'나선형 통로를 따라 위에서 아래로 내려가며 관람하는 구조예요.'},
+  {name:'청수사 (기요미즈데라)', area:'교토', lat:34.9949, lng:135.7850, icon:'🏯', points:20, grad:['#9c3b2e','#d9694a'], img:'https://commons.wikimedia.org/wiki/Special:FilePath/Kiyomizu-dera%2C%20Kyoto%2C%20November%202016%20-01.jpg?width=800', desc:'못을 하나도 쓰지 않고 나무를 짜맞춰 지은 건축 기법(가케즈쿠리)으로 유명한 절이에요.', tip:'가파른 돌길이 많으니 편한 운동화는 필수!'},
+  {name:'윤동주 시비 (도시샤대학)', area:'교토', lat:35.0313, lng:135.7601, icon:'📜', points:15, grad:['#2c3163','#4d5591'], img:'', desc:'일제강점기 청년 시인 윤동주가 유학했던 도시샤대학 교정에 그를 기리는 시비가 세워져 있어요.', tip:'시비 앞에서는 조용히, 차분한 마음으로 시를 함께 읽어보는 시간을 가져보세요.'},
+  {name:'도톤보리 · 신사이바시', area:'오사카', lat:34.6687, lng:135.5013, icon:'🌆', points:10, grad:['#7a1f6e','#c23fa0'], img:'https://commons.wikimedia.org/wiki/Special:FilePath/Dotonbori%2C%20Osaka%2C%20at%20night%2C%20November%202016.jpg?width=800', desc:'운하를 따라 늘어선 오사카 대표 번화가예요.', tip:'사람이 많은 곳이니 모둠 친구들과 꼭 함께 다니세요.'},
+  {name:'유니버설 스튜디오 재팬', area:'오사카', lat:34.6654, lng:135.4323, icon:'🎢', points:20, grad:['#4b2196','#8452e0'], img:'', desc:'영화 · 애니메이션을 테마로 한 놀이공원이에요.', tip:'집합 시간을 꼭 지키고, 놀이기구 탑승 전 안전 수칙 안내를 잘 들어요.'},
+  {name:'오사카성', area:'오사카', lat:34.6873, lng:135.5259, icon:'🏰', points:15, grad:['#8a5a12','#e2a83c'], img:'https://commons.wikimedia.org/wiki/Special:FilePath/Osaka%20Castle%2002bs3200.jpg?width=800', desc:'일본 3대 성 중 하나로 꼽히는 성이에요.', tip:'성 주변 공원이 넓으니 단체 이동 시 흩어지지 않도록 주의하세요.'},
+  {name:'롯코산 케이블카 · 가든테라스', area:'고베', lat:34.7514, lng:135.2394, icon:'🚡', points:15, grad:['#1c5a8a','#4ea8c9'], img:'', desc:'케이블카를 타고 롯코산 정상까지 올라가면 고베 시내와 바다가 한눈에 내려다보이는 멋진 전망대가 있어요.', tip:'산 위는 바람이 세고 쌀쌀할 수 있으니 얇은 겉옷을 챙기면 좋아요.'},
+  {name:'고베 하버랜드 · 메리켄파크', area:'고베', lat:34.6828, lng:135.1862, icon:'⚓', points:15, grad:['#0f6e7a','#38b8c2'], img:'https://commons.wikimedia.org/wiki/Special:FilePath/Kobe%20Port%20Tower%202015-07.jpg?width=800', desc:'옛 항구 지역을 재개발한 곳으로, 바다를 배경으로 한 풍경이 아름다워요.', tip:'바닷바람이 부니 얇은 겉옷을 챙기면 좋아요.'},
+];
+const STAMP_BONUS_TIERS = [ {count:5, bonus:20}, {count:7, bonus:50}, {count:10, bonus:100} ];
+
+/* '알아두면 좋아요' 근처 검색용 — 실제로 우리가 방문하는 도시의 대표 지점 좌표.
+   예전에는 무조건 '오사카'만 붙여서 검색했는데, 그러면 나라·교토·고베에서
+   검색해도 오사카 쪽 엉뚱한 결과가 나올 수 있었어요. 이제 우리가 가는
+   4개 도시(나라·교토·오사카·고베)의 실제 방문 장소 좌표를 기준으로 검색해요. */
+const CITY_ANCHORS = {
+  '나라': {lat:34.6890, lng:135.8398},
+  '교토': {lat:34.9949, lng:135.7850},
+  '오사카': {lat:34.6687, lng:135.5013},
+  '고베': {lat:34.6828, lng:135.1862},
+};
+
+const USEFUL_SPOTS = [
+  {icon:'🏪', name:'편의점', area:'어디서나', desc:'일본 어디서나 흔히 보이는 편의점이에요. 화장실, ATM까지 있는 곳이 많아요.'},
+  {icon:'💊', name:'드러그스토어', area:'번화가', desc:'약·화장품·과자를 함께 파는 큰 상점이에요.'},
+  {icon:'💰', name:'환전소 · ATM', area:'공항·역 근처', desc:'공항이나 역 근처에 환전소가 많아요.'},
+  {icon:'🚉', name:'JR · 지하철역', area:'도시 곳곳', desc:'초록색 JR 마크나 동그란 지하철 표시를 찾으면 돼요.'},
+  {icon:'🗺️', name:'관광안내소', area:'주요 역·명소', desc:'무료 지도와 관광 정보를 얻을 수 있는 곳이에요.'},
+  {icon:'🏥', name:'병원 · 약국', area:'번화가', desc:'몸이 아프면 먼저 선생님께 꼭 알리세요.'},
+  {icon:'🚻', name:'화장실', area:'역·백화점·편의점', desc:'역, 백화점, 대형 상점의 화장실을 이용하면 편해요.'},
+  {icon:'💯', name:'다이소 · 100엔숍', area:'번화가·쇼핑몰', desc:'저렴한 기념품이나 생활용품을 구경하기 좋은 곳이에요.'},
+];
+
+const QUIZZES = [
+  {id:'q1', place:'나라 · 동대사·사슴공원', points:50, icon:'⛩️', questions:[
+    {type:'객관식', q:'도다이지(동대사)에 있는 세계 최대급 목조 불상의 이름은?', opts:['비로자나불(대불)','미륵불','관음상','석가여래'], answer:0, note:'대불전 안의 커다란 비로자나불(대불)은 도다이지의 상징이에요.'},
+    {type:'OX', q:'나라공원의 사슴은 자유롭게 돌아다니며 사슴센베이를 받아먹는다.', opts:['O','X'], answer:0, note:'맞아요! 나라의 사슴은 천연기념물로 보호받으며 공원을 자유롭게 다녀요.'},
+    {type:'초성퀴즈', q:'나라 시대 일본의 수도였던 도시 이름의 초성은? (ㄴㄹ)', opts:['나라','나고야','노다','니가타'], answer:0, note:'정답은 나라(奈良)예요.'},
+    {type:'빈칸퀴즈', q:'도다이지의 대불전은 한때 세계에서 가장 큰 ___ 건축물이었다.', opts:['목조','석조','유리','철제'], answer:0, note:'현재도 세계 최대급 목조 건축물 중 하나로 꼽혀요.'},
+    {type:'수수께끼', q:'인사를 하면 고개를 숙여 답례하지만, 먹을 걸 안 주면 삐질 수도 있는 나는?', opts:['나라의 사슴','오사카의 갈매기','교토의 고양이','고베의 비둘기'], answer:0, note:'나라공원의 사슴은 사슴센베이를 받으면 고개를 숙이는 습성으로 유명해요.'},
+  ]},
+  {id:'q2', place:'교토 · 청수사', points:40, icon:'🏯', questions:[
+    {type:'OX', q:'청수사(기요미즈데라) 무대에서 뛰어내려도 안전하다는 속설이 있으니 따라해도 된다.', opts:['O','X'], answer:1, note:'절대 위험한 행동을 흉내 내면 안 돼요! 옛이야기일 뿐입니다.'},
+    {type:'빈칸퀴즈', q:'청수사로 오르는 골목 산넨자카에서 넘어지면 ___년 동안 재수가 없다는 이야기가 전해진다.', opts:['3','5','7','10'], answer:0, note:'그래서 이 골목은 \'삼년고개\'라는 별명으로도 불려요.'},
+    {type:'초성퀴즈', q:'일제강점기 시인으로, 교토 유학 시절을 기려 교토에 시비가 세워진 이 시인의 초성은? (ㅇㄷㅈ)', opts:['윤동주','이육사','한용운','정지용'], answer:0, note:'윤동주 시인의 시비는 교토를 찾는 한국인들이 꼭 들르는 장소 중 하나예요.'},
+    {type:'객관식', q:'청수사의 독특한 건축 기법을 가장 잘 설명한 것은?', opts:['못을 거의 쓰지 않고 나무를 짜맞춤','전부 콘크리트로 지음','유리로만 지음','벽돌을 쌓아 지음'], answer:0, note:'커다란 나무 기둥을 짜맞추는 전통 공법으로 지어졌어요.'},
+  ]},
+  {id:'q3', place:'오사카 · 도톤보리', points:30, icon:'🌉', questions:[
+    {type:'OX', q:'신사이바시는 오사카를 대표하는 쇼핑 거리이다.', opts:['O','X'], answer:0, note:'도톤보리 근처의 대표적인 쇼핑 아케이드예요.'},
+    {type:'객관식', q:'도톤보리는 무엇을 따라 늘어선 번화가일까요?', opts:['운하(강)','산길','철길','해변'], answer:0, note:'도톤보리강을 따라 상점과 식당이 늘어서 있어요.'},
+    {type:'빈칸퀴즈', q:'도톤보리에서는 ___ 를 타고 강 위에서 야경을 즐길 수 있다.', opts:['리버크루즈','케이블카','열기구','자전거'], answer:0, note:'리버크루즈를 타면 도톤보리의 화려한 간판들을 물 위에서 볼 수 있어요.'},
+  ]},
+  {id:'q4', place:'유니버설 스튜디오', points:40, icon:'🎢', questions:[
+    {type:'객관식', q:'유니버설 스튜디오 재팬(USJ)이 있는 도시는?', opts:['오사카','도쿄','교토','고베'], answer:0, note:'오사카에 위치한 테마파크예요.'},
+    {type:'OX', q:'놀이기구를 탈 때는 안전바를 꼭 확인해야 한다.', opts:['O','X'], answer:0, note:'안전이 최우선! 안전바와 벨트를 꼭 확인하세요.'},
+    {type:'빈칸퀴즈', q:'유니버설 스튜디오는 영화와 애니메이션을 테마로 한 ___ 파크이다.', opts:['테마','물놀이','동물','과학'], answer:0, note:'다양한 영화 속 세계관을 체험할 수 있는 테마파크예요.'},
+    {type:'객관식', q:'놀이공원에서 모둠 활동 시 가장 중요한 약속은?', opts:['집합 시간 지키기','제일 먼저 타기','줄 서지 않기','혼자 다니기'], answer:0, note:'집합 시간을 지키는 것이 모두의 즐거운 하루를 만들어요.'},
+  ]},
+  {id:'q5', place:'오사카성 · 고베', points:40, icon:'🏰', questions:[
+    {type:'객관식', q:'오사카성을 처음 지은 유명한 무장은 누구일까요?', opts:['도요토미 히데요시','오다 노부나가','도쿠가와 이에야스','다테 마사무네'], answer:0, note:'도요토미 히데요시가 처음 축성한 성으로 알려져 있어요.'},
+    {type:'OX', q:'고베 롯코산 케이블카를 타면 고베 시내와 바다를 한눈에 볼 수 있다.', opts:['O','X'], answer:0, note:'전망대에서 고베의 야경과 항구가 아름답게 보여요.'},
+    {type:'빈칸퀴즈', q:'고베 하버랜드는 옛 ___ 지역을 재개발한 곳이다.', opts:['항구','논밭','철도','광산'], answer:0, note:'옛 항구 창고 지역을 새롭게 단장한 곳이에요.'},
+    {type:'초성퀴즈', q:'오사카성의 상징으로, 지붕에 금빛 장식이 있는 건물의 초성은? (ㅊㅅㄱ)', opts:['천수각','천마총','천왕문','천년각'], answer:0, note:'천수각은 성의 중심 건물로 화려한 금빛 장식이 특징이에요.'},
+  ]},
+  /* 여행 전(사전) 퀴즈 — pre:true 로 표시해서 '사전준비' 탭에서만 보여요.
+     '미션' 탭의 방문지 퀴즈와는 분리되지만, 점수는 똑같이 합산돼요. */
+  {id:'pq1', place:'사전 · 안전 수칙 알아보기', points:30, icon:'🛡️', pre:true, questions:[
+    {type:'OX', q:'이동할 때는 항상 모둠별로 함께 다녀야 한다.', opts:['O','X'], answer:0, note:'혼자 이탈하지 않고 모둠과 함께 움직이는 게 가장 중요해요.'},
+    {type:'객관식', q:'몸이 아프거나 다쳤을 때 가장 먼저 해야 할 일은?', opts:['담임·인솔 선생님께 알리기','참고 계속 이동하기','혼자 약국 찾아가기','친구에게만 말하기'], answer:0, note:'작은 증상이라도 바로 선생님께 알려야 빠르게 도움을 받을 수 있어요.'},
+    {type:'빈칸퀴즈', q:'취침 시간(22:00~) 이후에는 ___을(를) 사용하지 않는다.', opts:['휴대폰','칫솔','이불','물'], answer:0, note:'다른 친구들의 숙면을 위해서도 꼭 지켜야 해요.'},
+  ]},
+  {id:'pq2', place:'사전 · 짐싸기 준비물', points:20, icon:'🎒', pre:true, questions:[
+    {type:'OX', q:'라이터나 가스류는 기내에 들고 탈 수 없다.', opts:['O','X'], answer:0, note:'위험물이라 기내 반입이 금지돼요.'},
+    {type:'객관식', q:'여권은 어떻게 보관하는 게 가장 좋을까요?', opts:['지퍼백 등에 넣어 항상 소지','캐리어 맨 아래','호텔에 두고 다니기','친구에게 맡기기'], answer:0, note:'분실 방지를 위해 항상 몸에 소지하는 게 안전해요.'},
+    {type:'빈칸퀴즈', q:'보조배터리는 ___ 가방에 넣어야 한다.', opts:['기내용(휴대)','위탁수하물','호텔에 두고 오는','아무'], answer:0, note:'보조배터리는 안전 규정상 기내 휴대가 원칙이에요.'},
+  ]},
+  {id:'pq3', place:'사전 · 우리 여행 일정 알기', points:30, icon:'🗓️', pre:true, questions:[
+    {type:'객관식', q:'우리 수학여행은 총 며칠 동안 진행될까요?', opts:['3박 4일','2박 3일','4박 5일','당일치기'], answer:0, note:'10월 27일부터 30일까지, 3박 4일 일정이에요.'},
+    {type:'객관식', q:'2일차(교토 역사기행)에서 가는 대표 장소는 어디일까요?', opts:['청수사(기요미즈데라)','유니버설 스튜디오','동대사','나라사슴공원'], answer:0, note:'2일차에는 교토의 청수사와 산넨자카·니넨자카를 둘러봐요.'},
+    {type:'OX', q:'유니버설 스튜디오는 3일차 자유이용일이다.', opts:['O','X'], answer:0, note:'3일차 하루 종일 USJ를 자유이용해요.'},
+  ]},
+  {id:'pq4', place:'사전 · 일본 기본 상식', points:20, icon:'🇯🇵', pre:true, questions:[
+    {type:'객관식', q:'일본에서 사용하는 화폐 단위는?', opts:['엔(円)','위안','달러','바트'], answer:0, note:'일본의 화폐 단위는 엔(円)이에요.'},
+    {type:'OX', q:'일본에서는 식당에서 팁을 따로 주는 문화가 일반적이다.', opts:['O','X'], answer:1, note:'일본은 팁 문화가 없어요. 오히려 어색해할 수 있어요.'},
+    {type:'빈칸퀴즈', q:'일본 콘센트에 꽂으려면 ___ 변환 플러그가 필요하다.', opts:['110V용 돼지코','일반 멀티탭','한국용 그대로','필요 없음'], answer:0, note:'일본은 110V를 사용해서 변환 플러그가 있어야 충전할 수 있어요.'},
+  ]},
+];
+
+const PHOTO_CHALLENGES = [
+  {id:'p1', title:'나라공원 사슴에게 인사하는 척!', place:'나라공원', points:15, icon:'🦌', desc:'사슴에게 고개를 숙여 인사하는 포즈로 찍어보세요.'},
+  {id:'p2', title:'동대사 대불전 앞 두 팔 벌려 크기 재기', place:'동대사(도다이지)', points:20, icon:'⛩️', desc:'대불전 앞에서 두 팔을 활짝 벌려 찍어보세요.'},
+  {id:'p3', title:'청수사 무대에서 교토 시내 배경샷', place:'청수사', points:20, icon:'🏯', desc:'기요미즈데라의 나무 무대 난간 앞에 서서 찍어보세요.'},
+  {id:'p4', title:'교토 전통 골목 감성샷', place:'산넨자카·니넨자카', points:15, icon:'🎎', desc:'옛 정취가 남아있는 골목길을 배경으로 찍어보세요.'},
+  {id:'p5', title:'도톤보리 글리코 간판 따라하기', place:'도톤보리', points:20, icon:'🌆', desc:'도톤보리의 상징, 대형 러너 간판과 똑같은 포즈로 찍어보세요!'},
+  {id:'p6', title:'오사카 명물 먹방 인증샷', place:'오사카', points:15, icon:'🐙', desc:'타코야키나 오코노미야키를 맛있게 먹는 모습을 인증해보세요!'},
+  {id:'p7', title:'유니버설 스튜디오 신나는 라이드샷', place:'USJ', points:20, icon:'🎢', desc:'놀이기구를 타기 전이나 탄 후, 신나는 표정으로 찍어보세요!'},
+  {id:'p8', title:'오사카성 천수각과 함께 찰칵', place:'오사카성', points:20, icon:'🏰', desc:'오사카성의 상징, 천수각이 한 프레임에 다 들어오도록 찍어보세요.'},
+  {id:'p9', title:'고베 롯코산 케이블카 인증샷', place:'롯코산', points:15, icon:'🚡', desc:'케이블카 안이나 전망대에서 고베 시내와 바다가 함께 보이도록 찍어보세요.'},
+  {id:'p10', title:'고베 하버랜드 모둠 단체사진', place:'고베 하버랜드', points:25, icon:'⚓', desc:'우리 모둠원 모두가 함께 찍는 단체사진! 고베 바다를 배경으로 다 같이 찍어보세요.'},
+  /* 여행 전(사전) 포토미션 — pre:true. 업로드 방식은 기존 포토챌린지와 완전히 동일해요. */
+  {id:'pp1', title:'짐싸기 완료 인증샷', place:'우리집', points:15, icon:'🧳', pre:true, desc:'캐리어에 짐을 다 싸고 사진을 찍어보세요! (부모님과 함께 확인하면 더 좋아요)'},
+  {id:'pp2', title:'여권 준비 인증샷', place:'우리집', points:15, icon:'🛂', pre:true, desc:'여권을 준비했다면 (개인정보가 보이지 않게) 인증샷을 올려보세요.'},
+  {id:'pp3', title:'우리반 사전모임 단체사진', place:'교실', points:20, icon:'👬', pre:true, desc:'교실에서 사전 안전교육 시간에 다 같이 찍은 사진을 올려보세요.'},
+  {id:'pp4', title:'일본어 인사 연습 인증샷', place:'교실', points:15, icon:'🗣️', pre:true, desc:'일본어 탭에서 배운 인사말을 친구와 연습하는 모습을 찍어보세요.'},
+];
+
+const RANDOM_MISSIONS = [
+  {title:'모둠 친구와 하이파이브하고 사진 찍기', points:10},
+  {title:'일본어로 "곤니치와(안녕하세요)" 배워서 인사해보기', points:15},
+  {title:'오늘 먹은 음식 이름 하나 기억해서 친구에게 설명하기', points:10},
+  {title:'버스 안에서 창밖 풍경 중 인상 깊은 것 한 가지 이야기하기', points:10},
+  {title:'선생님께 오늘 하루 감사 인사 전하기', points:15},
+  {title:'새로운 일본어 단어 3개 배워오기', points:20},
+  {title:'오늘의 기분을 이모지 3개로 표현하기', points:10},
+  {title:'모둠 친구 3명에게 칭찬 한마디씩 하기', points:15},
+  {title:'여행 일기 세 줄 쓰기', points:20},
+  {title:'숙소 짐 정리 스스로 해내기', points:15},
+];
+
+const JAPANESE_PHRASES = [
+  {cat:'인사말', icon:'👋', items:[
+    {jp:'おはようございます', romaji:'오하요- 고자이마스', kr:'안녕하세요 (아침 인사)'},
+    {jp:'こんにちは', romaji:'콘니치와', kr:'안녕하세요 (낮 인사)'},
+    {jp:'こんばんは', romaji:'콤반와', kr:'안녕하세요 (저녁 인사)'},
+    {jp:'さようなら', romaji:'사요-나라', kr:'안녕히 가세요'},
+    {jp:'またね', romaji:'마타네', kr:'또 봐요 (친구끼리)'},
+    {jp:'はじめまして', romaji:'하지메마시테', kr:'처음 뵙겠습니다'},
+    {jp:'よろしくお願いします', romaji:'요로시쿠 오네가이시마스', kr:'잘 부탁드려요'},
+    {jp:'ありがとうございます', romaji:'아리가토- 고자이마스', kr:'감사합니다'},
+    {jp:'すみません', romaji:'스미마센', kr:'죄송합니다 · 실례합니다'},
+    {jp:'はい / いいえ', romaji:'하이 / 이-에', kr:'네 / 아니오'},
+    {jp:'いただきます', romaji:'이타다키마스', kr:'잘 먹겠습니다 (식사 전)'},
+    {jp:'ごちそうさまでした', romaji:'고치소-사마데시타', kr:'잘 먹었습니다 (식사 후)'},
+  ]},
+  {cat:'식당에서', icon:'🍜', items:[
+    {jp:'これください', romaji:'코레 쿠다사이', kr:'이거 주세요'},
+    {jp:'メニューを見せてください', romaji:'메뉴-오 미세테 쿠다사이', kr:'메뉴 보여주세요'},
+    {jp:'おいしいです', romaji:'오이시-데스', kr:'맛있어요'},
+    {jp:'お水ください', romaji:'오미즈 쿠다사이', kr:'물 주세요'},
+    {jp:'辛くないですか？', romaji:'카라쿠나이데스카', kr:'안 매워요?'},
+    {jp:'少しだけください', romaji:'스코시다케 쿠다사이', kr:'조금만 주세요'},
+    {jp:'お腹いっぱいです', romaji:'오나카 잇파이데스', kr:'배불러요'},
+    {jp:'お会計お願いします', romaji:'오카이케- 오네가이시마스', kr:'계산해주세요'},
+  ]},
+  {cat:'쇼핑할 때', icon:'🛍️', items:[
+    {jp:'いくらですか？', romaji:'이쿠라데스카', kr:'얼마예요?'},
+    {jp:'これにします', romaji:'코레니 시마스', kr:'이것으로 할게요'},
+    {jp:'カード使えますか？', romaji:'카-도 츠카에마스카', kr:'카드 되나요?'},
+    {jp:'試着してもいいですか？', romaji:'시챠쿠시테모 이-데스카', kr:'입어봐도 되나요?'},
+    {jp:'袋ください', romaji:'후쿠로 쿠다사이', kr:'봉투 주세요'},
+    {jp:'プレゼント用です', romaji:'푸레젠토요-데스', kr:'선물용이에요'},
+    {jp:'トイレはどこですか？', romaji:'토이레와 도코데스카', kr:'화장실이 어디예요?'},
+  ]},
+  {cat:'길찾기·교통', icon:'🗺️', items:[
+    {jp:'ここはどこですか？', romaji:'코코와 도코데스카', kr:'여기가 어디예요?'},
+    {jp:'駅はどこですか？', romaji:'에키와 도코데스카', kr:'역이 어디예요?'},
+    {jp:'何時に出発しますか？', romaji:'난지니 슛파츠시마스카', kr:'몇 시에 출발해요?'},
+    {jp:'あとどれくらいですか？', romaji:'아토 도레쿠라이데스카', kr:'얼마나 더 가야 해요?'},
+    {jp:'写真を撮ってもいいですか？', romaji:'샤신오 톳테모 이-데스카', kr:'사진 찍어도 되나요?'},
+    {jp:'ゆっくり話してください', romaji:'윳쿠리 하나시테 쿠다사이', kr:'천천히 말해주세요'},
+    {jp:'もう一度お願いします', romaji:'모- 이치도 오네가이시마스', kr:'다시 한번 말해주세요'},
+  ]},
+  {cat:'감정·리액션', icon:'😊', items:[
+    {jp:'すごいです！', romaji:'스고이데스', kr:'대단해요!'},
+    {jp:'かわいいです！', romaji:'카와이-데스', kr:'귀여워요!'},
+    {jp:'楽しいです！', romaji:'타노시-데스', kr:'재밌어요!'},
+    {jp:'大丈夫です', romaji:'다이죠-부데스', kr:'괜찮아요'},
+    {jp:'びっくりしました', romaji:'빅쿠리시마시타', kr:'깜짝 놀랐어요'},
+    {jp:'ちょっと疲れました', romaji:'춋토 츠카레마시타', kr:'좀 피곤해요'},
+    {jp:'眠いです', romaji:'네무이데스', kr:'졸려요'},
+  ]},
+  {cat:'긴급 상황', icon:'🆘', items:[
+    {jp:'助けてください！', romaji:'타스케테 쿠다사이', kr:'도와주세요!'},
+    {jp:'具合が悪いです', romaji:'구아이가 와루이데스', kr:'몸이 아파요'},
+    {jp:'トイレに行きたいです', romaji:'토이레니 이키타이데스', kr:'화장실 가고 싶어요'},
+    {jp:'迷子になりました', romaji:'마이고니 나리마시타', kr:'길을 잃었어요'},
+    {jp:'携帯電話をなくしました', romaji:'케-타이뎅와오 나쿠시마시타', kr:'휴대폰을 잃어버렸어요'},
+    {jp:'先生を呼んでください', romaji:'센세-오 욘데 쿠다사이', kr:'선생님을 불러주세요'},
+    {jp:'韓国語を話せる人はいますか？', romaji:'캉코쿠고오 하나세루 히토와 이마스카', kr:'한국어 하는 사람 있나요?'},
+  ]},
+];
+
+const BUSES_PLAN = [
+  {id:'1호차', schools:[['낙서초',1],['부림초',9],['봉수분교',3],['용덕초',6]], staff:[['추진단(책임·부책임인솔자)',2],['담임교사',5]], total:26, note:'출발 · 도착 장소: 의령교육지원청'},
+  {id:'2호차', schools:[['가례초',2],['대의초',6],['유곡초',1],['정곡초',5],['칠곡초',3],['화정초',2]], staff:[['추진단(주무관)',1],['담임교사',6]], total:26, note:'출발 · 도착 장소: 의령교육지원청'},
+];
+const ROOMS_PLAN = [
+  {room:'남학생 2인실 (남-11)', slots:[{school:'화정초', count:2}]},
+  {room:'인솔교사 2인실 (인솔여-02)', slots:[{school:'화정초', count:1},{school:'칠곡초', count:1, name:'강선미'}], staff:true},
+];
+
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCSFQUyZ4jkMdHmcb_7qPz8sNNzw64yZ9A",
+  authDomain: "daeui-trip.firebaseapp.com",
+  projectId: "daeui-trip",
+  storageBucket: "daeui-trip.firebasestorage.app",
+  messagingSenderId: "1054408940868",
+  appId: "1:1054408940868:web:8342e0e23465251e444b11"
+};
+
+/* =========================================================================
+   유틸리티
+   ========================================================================= */
+function lsGet(key, def){ try{ const v=localStorage.getItem('hwajeong_'+key); return v===null? def : JSON.parse(v); }catch(e){ return def; } }
+function lsSet(key, val){ try{ localStorage.setItem('hwajeong_'+key, JSON.stringify(val)); }catch(e){ console.warn('저장 실패', e); } }
+function escapeHtml(s){ return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escAttr(s){ return escapeHtml(s); }
+function sanitizeId(s){ return (String(s).replace(/[^\w가-힣]/g,'_').slice(0,60)) || 'anon'; }
+
+let toastTimer=null;
+function toast(msg){ const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'), 2200); }
+function celebrate(){
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const cx=window.innerWidth/2, cy=Math.min(210, window.innerHeight*0.28);
+  const bits=['✨','🎉','⭐','🌟'];
+  for(let i=0;i<7;i++){
+    const el=document.createElement('div');
+    el.textContent=bits[Math.floor(Math.random()*bits.length)];
+    const dx=(Math.random()-0.5)*130;
+    el.style.cssText=`position:fixed; left:${cx+dx}px; top:${cy}px; font-size:${15+Math.random()*13}px; pointer-events:none; z-index:300; animation:floatUp ${0.7+Math.random()*0.5}s ease-out forwards;`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 1300);
+  }
+}
+function openSheet(html){ document.getElementById('modalRoot').innerHTML=`<div class="modal-back" onclick="if(event.target===this) closeModal()"><div class="sheet">${html}</div></div>`; }
+function openCenter(html){ document.getElementById('modalRoot').innerHTML=`<div class="modal-back center" onclick="if(event.target===this) closeModal()"><div class="sheet">${html}</div></div>`; }
+function closeModal(){ document.getElementById('modalRoot').innerHTML=''; }
+function haversine(lat1,lon1,lat2,lon2){ const R=6371000, dLat=(lat2-lat1)*Math.PI/180, dLon=(lon2-lon1)*Math.PI/180; const a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2); return 2*R*Math.asin(Math.sqrt(a)); }
+function compressImage(file, maxW, quality){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{
+        let w=img.width,h=img.height;
+        if(w>maxW){ h=Math.round(h*maxW/w); w=maxW; }
+        const canvas=document.createElement('canvas'); canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror=()=>reject(new Error('이미지를 읽을 수 없어요')); img.src=e.target.result;
+    };
+    reader.onerror=()=>reject(new Error('파일을 읽을 수 없어요')); reader.readAsDataURL(file);
+  });
+}
+function todayStr(){ const t=new Date(); return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0'); }
+function daysBetween(a,b){ return Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000); }
+function dowKo(dateStr){ return ['일','월','화','수','목','금','토'][new Date(dateStr+'T00:00:00').getDay()]; }
+function fmtMD(dateStr){ const d=new Date(dateStr+'T00:00:00'); return `${d.getMonth()+1}/${d.getDate()}(${dowKo(dateStr)})`; }
+function fmtRangeKo(s,e){ const sd=new Date(s+'T00:00:00'), ed=new Date(e+'T00:00:00'); return `${sd.getFullYear()}.${sd.getMonth()+1}.${sd.getDate()}(${dowKo(s)}) ~ ${ed.getMonth()+1}.${ed.getDate()}(${dowKo(e)}) · 3박4일`; }
+function ddayInfo(){
+  const today=todayStr(); const n=daysBetween(today, TRIP.startDate); const mEnd=daysBetween(today, TRIP.endDate);
+  if(n>0) return {state:'before', daysLeft:n, badge:'D-'+n, badgeSub:'출발 전'};
+  if(mEnd>=0){ const dayIndex=-n; return {state:'during', dayIndex, badge:(dayIndex+1)+'일차', badgeSub:'여행 중'}; }
+  return {state:'after', badge:'완료', badgeSub:'여행 종료'};
+}
+function nextPrepMilestone(){ const today=todayStr(); return PREP_TIMELINE.filter(x=>x.end>=today && !x.title.startsWith('※')).sort((a,b)=>a.start.localeCompare(b.start))[0]; }
+
+/* =========================================================================
+   Firebase — 공유 랭킹 / 갤러리 / 설정
+   ========================================================================= */
+let firebaseReady=false, db=null, isAdminSession=false;
+try{ if(FIREBASE_CONFIG.apiKey){ firebase.initializeApp(FIREBASE_CONFIG); db=firebase.firestore(); firebaseReady=true; } }catch(e){ console.warn('[화정초 앱] Firebase 초기화 실패'); firebaseReady=false; }
+let __firestoreWarned=false;
+function warnFirestoreOnce(err){
+  if(__firestoreWarned) return; __firestoreWarned=true;
+  if(err && err.code==='permission-denied') console.warn('[화정초 앱] Firestore 권한 오류(permission-denied)');
+  else console.warn('[화정초 앱] 공유 서버 연결 실패', err);
+}
+async function fetchRanking(){ if(firebaseReady){ try{ const snap=await db.collection('rankings').get(); return snap.docs.map(d=>d.data()); }catch(e){ warnFirestoreOnce(e); return []; } } return lsGet('fallback_rankings', []); }
+async function submitRanking(name, data){ if(firebaseReady){ try{ await db.collection('rankings').doc(sanitizeId(name)).set(data, {merge:true}); return; }catch(e){ warnFirestoreOnce(e); } } const list=lsGet('fallback_rankings', []); const idx=list.findIndex(x=>x.name===name); if(idx>=0) list[idx]={...list[idx], ...data}; else list.push(data); lsSet('fallback_rankings', list); }
+async function deleteRankingEntry(name){ if(firebaseReady){ try{ await db.collection('rankings').doc(sanitizeId(name)).delete(); return true; }catch(e){ warnFirestoreOnce(e); return false; } } const list=lsGet('fallback_rankings', []).filter(x=>x.name!==name); lsSet('fallback_rankings', list); return true; }
+async function fetchGallery(){ if(firebaseReady){ try{ const snap=await db.collection('gallery').orderBy('createdAt','desc').limit(60).get(); return snap.docs.map(d=>({...d.data(), _id:d.id})); }catch(e){ warnFirestoreOnce(e); return []; } } return lsGet('fallback_gallery', []).slice().reverse(); }
+async function addGalleryPhoto(payload){ if(firebaseReady){ try{ await db.collection('gallery').add(payload); return; }catch(e){ warnFirestoreOnce(e); } } const list=lsGet('fallback_gallery', []); list.push(payload); lsSet('fallback_gallery', list); }
+async function deleteGalleryPhotoAt(list, i){ const p=list[i]; if(!p) return false; if(firebaseReady){ try{ await db.collection('gallery').doc(p._id).delete(); return true; }catch(e){ warnFirestoreOnce(e); return false; } } const raw=lsGet('fallback_gallery', []); const rawIdx=raw.length-1-i; raw.splice(rawIdx,1); lsSet('fallback_gallery', raw); return true; }
+
+/* =========================================================================
+   점수 계산
+   ========================================================================= */
+function getMyName(){ return lsGet('myname',''); }
+function quizAnswerKey(qid,qi){ return qid+'_'+qi; }
+function getQuizAnswers(){ return lsGet('quiz_answers', {}); }
+function setQuizAnswer(qid,qi,idx){ const a=getQuizAnswers(); a[quizAnswerKey(qid,qi)]=idx; lsSet('quiz_answers', a); }
+function quizSetScore(set){ const a=getQuizAnswers(); const per=Math.round(set.points/set.questions.length); let s=0; set.questions.forEach((q,qi)=>{ if(a[quizAnswerKey(set.id,qi)]===q.answer) s+=per; }); return s; }
+function sumQuizScore(){ return QUIZZES.reduce((s,set)=>s+quizSetScore(set), 0); }
+function quizSetProgress(set){ const a=getQuizAnswers(); let done=0; set.questions.forEach((q,qi)=>{ if(a[quizAnswerKey(set.id,qi)]!==undefined) done++; }); return {done, total:set.questions.length}; }
+function getStamps(){ return lsGet('stamps', {}); }
+function stampBonus(count){ return STAMP_BONUS_TIERS.filter(t=>count>=t.count).reduce((s,t)=>s+t.bonus,0); }
+function stampPointsEarned(){ const stamps=getStamps(); return GUIDE.reduce((s,g)=> s+(stamps[g.name]? g.points:0), 0); }
+function stampTotalPoints(){ const count=Object.keys(getStamps()).length; return stampPointsEarned()+stampBonus(count); }
+function getPhotoChallenges(){ return lsGet('photo_challenges', {}); }
+function sumPhotoScore(){ const d=getPhotoChallenges(); let s=0; PHOTO_CHALLENGES.forEach(c=>{ if(d[c.id]) s+=c.points; }); return s+lsGet('random_score', 0); }
+/* 사진 업로드 점수 — "내 사진"과 "공유 갤러리"에 사진을 한 장 올릴 때마다 2점씩.
+   포토챌린지 점수와는 별개로 집계했다가, 포토 랭킹(photoScore)에는 합쳐서 반영해요. */
+function photoUploadCount(){ return getMyPhotos().length + lsGet('shared_photo_count', 0); }
+function photoUploadScore(){ return photoUploadCount() * 2; }
+async function syncMyScore(){
+  const name=getMyName(); if(!name) return;
+  const quiz=sumQuizScore(), challengeScore=sumPhotoScore(), stampPts=stampTotalPoints();
+  const jpPts = jpLearnedCount() * 5; // 일본어 5점 합산
+  const uploadPts = photoUploadScore(); // 사진 업로드 2점씩
+  let photoScore = challengeScore + uploadPts; // 포토랭킹은 포토챌린지+업로드 합산
+  let data = {quizScore:quiz, photoScore, stampScore:stampPts, jpScore:jpPts, uploadScore:uploadPts};
+  /* 다른 기기(예: 새 홈 화면 아이콘)는 이 기기의 진행 상황을 전혀 모르는 "빈 상태"로 시작해요.
+     그 상태로 그냥 덮어쓰면 이미 클라우드에 쌓여 있던 점수가 0으로 리셋될 수 있어서,
+     기존 클라우드 점수보다 낮은 항목은 절대 깎이지 않도록 기존 값과 비교해 더 큰 쪽만 저장해요. */
+  if(firebaseReady){
+    try{
+      const snap = await db.collection('rankings').doc(sanitizeId(name)).get();
+      if(snap.exists){
+        const prev = snap.data() || {};
+        data.quizScore = Math.max(data.quizScore, prev.quizScore||0);
+        data.stampScore = Math.max(data.stampScore, prev.stampScore||0);
+        data.jpScore = Math.max(data.jpScore, prev.jpScore||0);
+        data.uploadScore = Math.max(data.uploadScore, prev.uploadScore||0);
+        data.photoScore = Math.max(data.photoScore, prev.photoScore||0, data.uploadScore);
+      }
+    }catch(e){ warnFirestoreOnce(e); }
+  }
+  data.totalScore = data.quizScore + data.photoScore + data.stampScore + data.jpScore;
+  await submitRanking(name, {name, ...data, updatedAt:Date.now()});
+}
+
+/* =========================================================================
+   화면 상태 & 렌더링
+   ========================================================================= */
+const ui = { tab:'home', missionSub:'quiz', infoSub:'schedule', photoSub:'mine', rankSub:'total', dayTab:0, seatSub:'bus', busIdx:1, openQuiz:null, randomMission:null, jpCat:0 };
+const TABS = [ {id:'home',label:'홈',icon:'🏠'}, {id:'pre',label:'사전연습',icon:'📚'}, {id:'info',label:'정보',icon:'ℹ️'}, {id:'photo',label:'사진',icon:'📷'}, {id:'mission',label:'미션',icon:'🧩'}, {id:'jp',label:'일본어',icon:'🇯🇵'}, {id:'rank',label:'랭킹',icon:'🏆'} ];
+const INFO_TABS = [ ['schedule','📅 일정'],['packing','✅ 준비물'],['allowance','💰 용돈'],['seats','🚌 좌석/방'],['guide','🗺️ 가이드'],['safety','⚠️ 주의'],['contacts','📞 연락처'],['prep','🗂️ 추진일정'] ];
+
+function setTab(id){ ui.tab=id; renderAll(); window.scrollTo(0,0); }
+function renderHero(){
+  const d=ddayInfo();
+  document.getElementById('hero').innerHTML=`<div class="hero-top"><div><h1 class="hero-title">${TRIP.emoji} ${TRIP.title}</h1><p class="hero-sub">${TRIP.subtitle}</p><p class="hero-theme">${TRIP.theme}</p></div><div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;"><button class="admin-btn" onclick="openAdminGate()">⚙️ 관리자</button><div class="stamp-badge"><b>${d.badge}</b><span>${d.badgeSub}</span></div></div></div><div class="hero-date">📅 ${fmtRangeKo(TRIP.startDate, TRIP.endDate)}</div>`;
+}
+function renderBottomNav(){ document.getElementById('bottomnav').innerHTML=TABS.map(t=>`<button class="navbtn ${ui.tab===t.id?'active':''}" onclick="setTab('${t.id}')"><span class="ic">${t.icon}</span>${t.label}</button>`).join(''); }
+function renderAll(){
+  try{
+    renderHero(); renderBottomNav(); const main=document.getElementById('main');
+    if(ui.tab==='home') main.innerHTML=viewHome(); else if(ui.tab==='pre') main.innerHTML=viewPre(); else if(ui.tab==='mission') main.innerHTML=viewMission(); else if(ui.tab==='jp') main.innerHTML=viewJapanese(); else if(ui.tab==='rank') main.innerHTML=viewRank(); else if(ui.tab==='photo') main.innerHTML=viewPhoto(); else main.innerHTML=viewInfo();
+    afterRender();
+  }catch(e){ console.error(e); document.getElementById('main').innerHTML=`<div class="wrap"><div class="card"><h3>⚠️ 문제가 발생했어요</h3><p>${escapeHtml(String(e.message||e))}</p></div></div>`; }
+}
+function afterRender(){ if(ui.tab==='rank') loadRankBody(); if(ui.tab==='photo' && ui.photoSub==='shared') loadGallery(); if(ui.tab==='home') updateMyRank(); }
+
+/* ---------- 홈 ---------- */
+function nextMissionHint(){
+  if(sumQuizScore()===0) return {text:'미션 탭에서 퀴즈를 풀어보세요!', emoji:'🎯'};
+  if(Object.keys(getPhotoChallenges()).length===0) return {text:'포토챌린지에 도전해서 추억을 남겨보세요!', emoji:'📸'};
+  if(Object.keys(getStamps()).length===0) return {text:'여행지에 도착하면 스탬프를 모아보세요!', emoji:'🏅'};
+  if(!getMyName()) return {text:'랭킹 탭에서 이름을 등록해보세요!', emoji:'🏆'};
+  return {text:'오늘도 즐거운 하루 보내요!', emoji:'🌟'};
+}
+function viewHome(){
+  const d=ddayInfo(); let scheduleBlock='';
+  if(d.state==='before'){
+    const next=nextPrepMilestone();
+    scheduleBlock=`<div class="card"><h3>📅 오늘 일정</h3><p>여행까지 <b style="color:var(--brass-deep)">${d.daysLeft}일</b> 남았어요! 설레는 마음으로 준비해볼까요? 🎒</p>${next?`<hr class="dashed"><p><span class="tag">다음 준비 일정</span> ${escapeHtml(next.title)} <span style="color:var(--ink-faint)">(${fmtMD(next.start)}${next.start!==next.end?' ~ '+fmtMD(next.end):''})</span></p>`:''}</div>`;
+  } else if(d.state==='during'){
+    const day=ITINERARY[d.dayIndex];
+    scheduleBlock=`<div class="card"><h3>📅 오늘 일정 · ${day.label} · ${day.theme}</h3><div class="tl">${day.events.slice(0,5).map(e=>`<div class="tl-item"><div class="tl-time">${e.time||'—'}</div><div class="tl-title">${e.icon}${e.title}</div></div>`).join('')}</div><button class="btn ghost block sm" onclick="ui.tab='info'; ui.infoSub='schedule'; renderAll();">전체 일정 보기 →</button></div>`;
+  } else {
+    scheduleBlock=`<div class="card"><h3>📅 오늘 일정</h3><p>수학여행이 끝났어요. 즐거운 추억 가득했길 바라요! 🌟 사진 탭에서 추억을 다시 볼 수 있어요.</p></div>`;
+  }
+  const q=sumQuizScore(), st=Object.keys(getStamps()).length, ph=sumPhotoScore(), jp=jpLearnedCount()*5, up=photoUploadScore(), hint=nextMissionHint();
+  return `<div class="wrap"><div class="banner info">🔔 <b>출발 안내</b> · ${fmtMD(TRIP.startDate)} ${TRIP.meetTime} ${TRIP.meetPlace} 집결이에요. 늦지 않게 도착해요!</div>
+    ${scheduleBlock}
+    <div class="stats"><div class="stat"><b>${q}</b><span>퀴즈 점수</span></div><div class="stat"><b>${st}/${GUIDE.length}</b><span>스탬프</span></div><div class="stat"><b>${ph}</b><span>📸 미션 점수</span></div><div class="stat"><b>${up}</b><span>📷 사진 점수</span></div><div class="stat"><b>${jp}</b><span>🇯🇵 일본어 점수</span></div><div class="stat"><b id="myRankStat">–</b><span>내 순위</span></div></div>
+    <div class="card"><h3>⚡ 빠른 실행</h3><div class="quickgrid">
+      <button class="quickbtn" onclick="ui.tab='mission'; ui.missionSub='stamp'; renderAll();"><span class="emoji">🏅</span><b>스탬프 받기</b><span>GPS 위치 인증</span></button>
+      <button class="quickbtn" onclick="ui.tab='mission'; ui.missionSub='photo'; renderAll();"><span class="emoji">📸</span><b>포토챌린지</b><span>사진 올리면 완료</span></button>
+      <button class="quickbtn" onclick="ui.tab='photo'; ui.photoSub='shared'; renderAll();"><span class="emoji">🌍</span><b>공유 갤러리</b><span>친구 사진 보기</span></button>
+      <button class="quickbtn" onclick="ui.tab='rank'; renderAll();"><span class="emoji">🏆</span><b>랭킹 보기</b><span>전체 순위</span></button>
+    </div></div>
+    <div class="card" style="background:#faf5e9; border-color:#f0dfa8;"><h3>${hint.emoji} 도전할 미션</h3><p style="color:var(--ink);">${hint.text}</p></div>
+  </div>`;
+}
+function updateMyRank(){
+  const el=document.getElementById('myRankStat'); if(!el) return;
+  const name=getMyName(); if(!name){ el.textContent='–'; return; }
+  fetchRanking().then(list=>{ const sorted=list.slice().sort((a,b)=>(b.totalScore||0)-(a.totalScore||0)); const idx=sorted.findIndex(x=>x.name===name); el.textContent=idx>=0?(idx+1)+'위':'–'; });
+}
+
+/* ---------- 미션 ---------- */
+function viewMission(){
+  const subtabs=[['quiz','🧩','퀴즈미션'],['stamp','🏅','스탬프'],['photo','📸','포토챌린지'],['random','🎲','랜덤미션']];
+  let body='';
+  if(ui.missionSub==='quiz') body=missionQuizHtml(); else if(ui.missionSub==='stamp') body=missionStampHtml(); else if(ui.missionSub==='photo') body=missionPhotoHtml(); else body=missionRandomHtml();
+  return `<div class="quicktabs">${subtabs.map(([id,ic,label])=>`<button class="qtab ${ui.missionSub===id?'active':''}" onclick="ui.missionSub='${id}'; renderAll();"><span class="ic">${ic}</span>${label}</button>`).join('')}</div><div class="wrap" style="padding-top:6px;">${body}</div>`;
+}
+function missionQuizHtml(){
+  const tripQuizzes=QUIZZES.filter(q=>!q.pre);
+  const total=tripQuizzes.reduce((s,q)=>s+q.points,0), score=tripQuizzes.reduce((s,set)=>s+quizSetScore(set),0);
+  let html=`<div class="card" style="text-align:center;"><div class="serif" style="font-size:30px; color:var(--navy-800);">${score}점</div><p>내 퀴즈 점수 · 전체 ${total}점 중</p></div><div class="section-title">📍 방문지 퀴즈 미션</div>`;
+  tripQuizzes.forEach(set=>{
+    const prog=quizSetProgress(set), open=ui.openQuiz===set.id;
+    html+=`<div class="qcard"><div class="qhead" onclick="ui.openQuiz = ui.openQuiz==='${set.id}'?null:'${set.id}'; renderAll();"><div class="emo">${set.icon}</div><div style="flex:1;"><div style="font-weight:700; font-size:14.5px;">${set.place}</div><div style="font-size:12px; color:var(--ink-soft);">${prog.done}/${prog.total}문제 진행 · ${set.points}점</div></div><div style="color:var(--ink-faint);">${open?'▲':'▼'}</div></div><div class="qbody ${open?'open':''}">${set.questions.map((q,qi)=>renderQuizQuestion(set,q,qi)).join('<hr class="dashed">')}</div></div>`;
+  });
+  return html;
+}
+/* 보기 순서 섞기 — 정답이 항상 1번(0번 인덱스)에 있던 문제라 화면에 보여줄 때만
+   순서를 랜덤으로 섞어요. answerQuiz()로 넘기는 인덱스는 원래(정답 판정용) 인덱스
+   그대로라서 채점 로직은 손댈 필요가 없어요. 같은 세션 안에서는 한 번 섞이면
+   유지되고(문제를 열었다 닫았다 해도 순서가 안 바뀜), 새로고침하면 다시 섞여요. */
+const QUIZ_OPTION_ORDER = {};
+function getQuizOptionOrder(qid, qi, len){
+  const key = qid+'_'+qi;
+  if(!QUIZ_OPTION_ORDER[key]){
+    const arr = Array.from({length:len}, (_,i)=>i);
+    for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+    QUIZ_OPTION_ORDER[key]=arr;
+  }
+  return QUIZ_OPTION_ORDER[key];
+}
+function renderQuizQuestion(set,q,qi){
+  const a=getQuizAnswers(); const chosen=a[quizAnswerKey(set.id,qi)]; const answered=chosen!==undefined;
+  const order=getQuizOptionOrder(set.id, qi, q.opts.length);
+  return `<div style="margin-bottom:6px;"><div style="font-size:11px; color:var(--brass-deep); font-weight:700; margin-bottom:4px;">${q.type}</div><div style="font-size:13.5px; font-weight:600; margin-bottom:9px;">${q.q}</div>
+    ${order.map(oi=>{ const opt=q.opts[oi]; let cls='qopt'; if(answered){ if(oi===q.answer) cls+=' correct'; else if(oi===chosen) cls+=' wrong'; } return `<button class="${cls}" ${answered?'disabled':''} onclick="answerQuiz('${set.id}',${qi},${oi})">${opt}</button>`; }).join('')}
+    ${answered?`<p style="font-size:12px; color:var(--ink-soft); margin-top:4px;">💡 ${q.note}</p>`:''}</div>`;
+}
+function answerQuiz(qid,qi,oi){
+  const a=getQuizAnswers(); const key=quizAnswerKey(qid,qi); if(a[key]!==undefined) return; setQuizAnswer(qid,qi,oi);
+  const set=QUIZZES.find(s=>s.id===qid); const correct=oi===set.questions[qi].answer;
+  toast(correct? '정답이에요! 🎉' : '아쉬워요, 다음 문제도 도전해봐요!');
+  if(correct) celebrate(); renderAll(); syncMyScore();
+}
+function stampBonusHtml(){
+  const count=Object.keys(getStamps()).length;
+  return `<div class="card" style="background:#fdf6e3; border-color:#f0dfa8;"><h3>🎁 완주 보너스</h3>${STAMP_BONUS_TIERS.map(t=>`<div class="row-between" style="padding:7px 0; ${count>=t.count?'':'opacity:.5;'}"><span>${count>=t.count?'🏅':'🔒'} 도장 ${t.count}개 이상</span><b style="color:var(--brass-deep)">+${t.bonus} 보너스점</b></div>`).join('')}</div>`;
+}
+function missionStampHtml(){
+  const stamps=getStamps(), got=Object.keys(stamps).length, earnedPts=stampPointsEarned();
+  let html=`<div class="card"><h3>🏅 여행지 스탬프 랠리</h3><p>장소 근처(약 800m 이내)에 가면 GPS로 도장이 자동으로 찍혀요!</p>
+    <div class="stats" style="grid-template-columns:repeat(3,1fr); margin-top:12px;"><div class="stat"><b>${got}</b><span>획득 도장</span></div><div class="stat"><b>${GUIDE.length}</b><span>전체 도장</span></div><div class="stat"><b>${earnedPts}</b><span>스탬프 점수</span></div></div>
+    <button class="btn gold block" style="margin-top:12px;" onclick="tryStamp()">📍 지금 위치로 도장 받기</button><div id="gpsStatus" style="font-size:12px; color:var(--ink-soft); margin-top:8px;"></div></div>`;
+  html+=stampBonusHtml();
+  html+=`<div class="section-title">🗺️ 방문지 스탬프</div><div class="pgrid2">`+GUIDE.map(g=>{ const on=!!stamps[g.name]; return `<div class="stampcard ${on?'on':''}"><div class="stampicon">${g.icon}</div><div class="stampname">${g.name}</div><div class="stamppts">${on?'✓ 획득':'+'+g.points+'점'}</div></div>`; }).join('')+`</div>`;
+  return html;
+}
+function tryStamp(){
+  const status=document.getElementById('gpsStatus');
+  if(!navigator.geolocation){ status.textContent='이 기기에서는 위치 확인을 지원하지 않아요.'; return; }
+  status.textContent='위치 확인 중...';
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const {latitude,longitude,accuracy}=pos.coords; let nearest=null, nd=Infinity;
+    GUIDE.forEach(g=>{ const dist=haversine(latitude,longitude,g.lat,g.lng); if(dist<nd){ nd=dist; nearest=g; } });
+    if(nearest && nd<=800){
+      const stamps=getStamps();
+      if(!stamps[nearest.name]){ stamps[nearest.name]=Date.now(); lsSet('stamps',stamps); toast('🎉 '+nearest.name+' 도장 획득! +'+nearest.points+'점'); celebrate(); syncMyScore(); }
+      else toast('이미 도장을 받은 곳이에요.');
+      status.textContent=`${nearest.name}까지 약 ${Math.round(nd)}m · GPS 정확도 ±${Math.round(accuracy)}m`;
+    } else if(nearest){ status.textContent=`가장 가까운 곳: ${nearest.name} (약 ${(Math.round(nd/100)/10)}km) — 800m 이내로 이동해보세요.`; }
+    renderAll();
+  }, ()=>{ status.textContent='위치 정보를 가져올 수 없어요. 위치 권한을 확인해주세요.'; }, {enableHighAccuracy:true, timeout:10000});
+}
+function missionPhotoHtml(){
+  const done=getPhotoChallenges(), tripChallenges=PHOTO_CHALLENGES.filter(c=>!c.pre);
+  const doneCount=tripChallenges.filter(c=>done[c.id]).length;
+  let html=`<div class="card"><h3>📸 포토챌린지</h3><p>${doneCount}/${tripChallenges.length} 완료 · 사진을 올리면 바로 완료 처리돼요!</p>
+    <div class="progress" style="margin-top:10px;"><i style="width:${doneCount/tripChallenges.length*100}%"></i></div></div>`;
+  tripChallenges.forEach(c=>{
+    const d=done[c.id];
+    html+=`<div class="card"><div class="row-between"><h3 style="margin:0;">${c.icon} ${c.title}</h3><span class="tag green">+${c.points}점</span></div><p style="margin-top:6px;"><span class="tag blue" style="margin-right:6px;">${c.place}</span>${c.desc}</p>
+      ${d?`<img src="${d.img}" style="width:100%; border-radius:12px; margin-top:10px; border:1px solid var(--line);"><p style="color:var(--good); font-weight:700; margin-top:6px;">✅ ${d.feedback?escapeHtml(d.feedback):'완료했어요!'}</p>`
+        :`<label class="upload-box" style="display:block; margin-top:10px;" id="upl-${c.id}">📷 사진을 선택하세요<input type="file" accept="image/*" capture="environment" style="display:none" onchange="completePhotoChallenge('${c.id}', this)"></label>`}</div>`;
+  });
+  return html;
+}
+async function completePhotoChallenge(id, input){
+  const file=input.files[0]; if(!file) return; const box=document.getElementById('upl-'+id);
+  try{
+    const dataUrl=await compressImage(file, 700, 0.65);
+    const d=getPhotoChallenges(); d[id]={img:dataUrl, ts:Date.now()}; lsSet('photo_challenges', d);
+    toast('미션 완료! 🎉'); celebrate(); renderAll(); syncMyScore();
+  }catch(e){ toast('사진을 불러오지 못했어요. 다른 사진으로 시도해주세요.'); if(box) box.textContent='📷 사진을 선택하세요'; }
+}
+
+/* ---------- 사전준비(여행 전) ----------
+   미션 탭과 같은 방식(퀴즈 카드, 포토미션 업로드)을 그대로 재사용해서
+   여행 전에 교실에서 배포해도 앱의 핵심 기능이 다 정상 작동하는지
+   확인할 수 있게 만든 탭이에요. */
+function viewPre(){
+  const preQuizzes=QUIZZES.filter(q=>q.pre), prePhotos=PHOTO_CHALLENGES.filter(c=>c.pre);
+  const done=getPhotoChallenges();
+  const doneQ=preQuizzes.filter(set=>quizSetProgress(set).done===quizSetProgress(set).total).length;
+  const donePh=prePhotos.filter(c=>done[c.id]).length;
+  let html=`<div class="wrap">
+    <div class="banner info">📚 <b>여행 전 사전학습</b> · 교실에서 미리 해보면서 일본 여행도 준비하고, 앱 사용법도 익혀봐요! 여기서 얻는 점수도 랭킹에 그대로 합산돼요.</div>
+    <div class="stats" style="grid-template-columns:repeat(3,1fr);">
+      <div class="stat"><b>${doneQ}/${preQuizzes.length}</b><span>사전 퀴즈</span></div>
+      <div class="stat"><b>${donePh}/${prePhotos.length}</b><span>사전 포토미션</span></div>
+      <div class="stat"><b>${jpLearnedCount()}/${jpAllCount()}</b><span>일본어 표현</span></div>
+    </div>
+    <div class="section-title">🧩 사전 퀴즈</div>`;
+  preQuizzes.forEach(set=>{
+    const prog=quizSetProgress(set), open=ui.openQuiz===set.id;
+    html+=`<div class="qcard"><div class="qhead" onclick="ui.openQuiz = ui.openQuiz==='${set.id}'?null:'${set.id}'; renderAll();"><div class="emo">${set.icon}</div><div style="flex:1;"><div style="font-weight:700; font-size:14.5px;">${set.place}</div><div style="font-size:12px; color:var(--ink-soft);">${prog.done}/${prog.total}문제 진행 · ${set.points}점</div></div><div style="color:var(--ink-faint);">${open?'▲':'▼'}</div></div><div class="qbody ${open?'open':''}">${set.questions.map((q,qi)=>renderQuizQuestion(set,q,qi)).join('<hr class="dashed">')}</div></div>`;
+  });
+  html+=`<div class="section-title" style="margin-top:16px;">📸 사전 포토미션</div>`;
+  prePhotos.forEach(c=>{
+    const d=done[c.id];
+    html+=`<div class="card"><div class="row-between"><h3 style="margin:0;">${c.icon} ${c.title}</h3><span class="tag green">+${c.points}점</span></div><p style="margin-top:6px;">${c.desc}</p>
+      ${d?`<img src="${d.img}" style="width:100%; border-radius:12px; margin-top:10px; border:1px solid var(--line);"><p style="color:var(--good); font-weight:700; margin-top:6px;">✅ 완료했어요!</p>`
+        :`<label class="upload-box" style="display:block; margin-top:10px;" id="upl-${c.id}">📷 사진을 선택하세요<input type="file" accept="image/*" capture="environment" style="display:none" onchange="completePhotoChallenge('${c.id}', this)"></label>`}</div>`;
+  });
+  html+=`<div class="section-title" style="margin-top:16px;">🇯🇵 일본어 표현 익히기</div>
+    <div class="card"><p>여행에서 바로 쓸 수 있는 인사말과 표현을 미리 외워두면 훨씬 든든해요! 배운 표현마다 점수가 쌓여요.</p><button class="btn gold block" style="margin-top:10px;" onclick="ui.tab='jp'; renderAll();">일본어 탭으로 이동 →</button></div>
+    <div class="section-title" style="margin-top:16px;">🏆 랭킹 미리보기</div>
+    <div class="card"><p>사전학습 점수도 전체 랭킹 · 포토랭킹에 그대로 합산돼요. 지금부터 친구들과 함께 준비해봐요!</p><button class="btn ghost block" style="margin-top:10px;" onclick="ui.tab='rank'; renderAll();">랭킹 탭으로 이동 →</button></div>
+  </div>`;
+  return html;
+}
+
+function missionRandomHtml(){
+  const current=ui.randomMission;
+  const count=lsGet('random_count_'+todayStr(), 0);
+  return `<div class="card" style="text-align:center;"><h3>🎲 랜덤 미션 뽑기</h3><p>버튼을 누르면 깜짝 미션이 나타나요! <br><span style="color:var(--brass-deep); font-weight:700;">(오늘 ${count}/10회 달성)</span></p>
+    ${current?`<div style="margin:16px 0; padding:16px; background:var(--parchment); border-radius:14px;"><div style="font-size:14.5px; font-weight:700;">${escapeHtml(current.title)}</div><div class="tag" style="margin-top:8px;">+${current.points}점</div></div>
+      <button class="btn gold block" onclick="completeRandomMission()">완료했어요!</button>`
+      :`<button class="btn gold block" style="margin-top:16px;" ${count>=10?'disabled':''} onclick="drawRandomMission()">${count>=10?'오늘 도전 끝! 내일 만나요':'🎲 미션 뽑기!'}</button>`}
+  </div>`;
+}
+function drawRandomMission(){ 
+  if(lsGet('random_count_'+todayStr(), 0) >= 10){ toast('하루 10번까지만 가능해요!'); return; }
+  ui.randomMission=RANDOM_MISSIONS[Math.floor(Math.random()*RANDOM_MISSIONS.length)]; renderAll(); 
+}
+function completeRandomMission(){
+  if(!ui.randomMission) return;
+  lsSet('random_count_'+todayStr(), lsGet('random_count_'+todayStr(), 0) + 1);
+  lsSet('random_score', lsGet('random_score',0)+ui.randomMission.points);
+  toast('미션 완료! +'+ui.randomMission.points+'점'); celebrate(); ui.randomMission=null; renderAll(); syncMyScore();
+}
+
+/* ---------- 일본어 미션 ---------- */
+function getJpLearned(){ return lsGet('jp_learned', {}); }
+function jpKey(ci,ii){ return ci+'_'+ii; }
+function jpAllCount(){ return JAPANESE_PHRASES.reduce((s,c)=>s+c.items.length,0); }
+function jpLearnedCount(){ return Object.values(getJpLearned()).filter(Boolean).length; }
+let __jaVoiceCache=null;
+function pickJaVoice(){
+  if(!window.speechSynthesis) return null;
+  if(__jaVoiceCache) return __jaVoiceCache;
+  const voices=window.speechSynthesis.getVoices()||[];
+  const ja=voices.filter(v=>v.lang && v.lang.toLowerCase().startsWith('ja'));
+  if(!ja.length) return null;
+  const preferred=['nanami','kyoko','o-ren','sayaka','haruka','ayumi','google 日本語','female'];
+  for(const pref of preferred){ const found=ja.find(v=>v.name.toLowerCase().includes(pref)); if(found){ __jaVoiceCache=found; return found; } }
+  __jaVoiceCache=ja[0]; return ja[0];
+}
+function speakJapanese(text){
+  try{
+    if(!window.speechSynthesis){ toast('이 기기에서는 음성 재생을 지원하지 않아요.'); return; }
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text); u.lang='ja-JP'; u.rate=0.98; u.pitch=1.05;
+    const voice=pickJaVoice(); if(voice) u.voice=voice; window.speechSynthesis.speak(u);
+  }catch(e){ toast('음성 재생에 실패했어요.'); }
+}
+if(typeof window!=='undefined' && window.speechSynthesis){ window.speechSynthesis.getVoices(); window.speechSynthesis.onvoiceschanged=()=>{ __jaVoiceCache=null; }; }
+function speakPhraseAt(ci,ii){ speakJapanese(JAPANESE_PHRASES[ci].items[ii].jp); }
+function toggleJpLearned(ci,ii){
+  const learned=getJpLearned(); const key=jpKey(ci,ii); const wasOn=!!learned[key];
+  learned[key]=!wasOn; lsSet('jp_learned', learned);
+  if(!wasOn) celebrate();
+  syncMyScore(); // 체크할 때마다 점수 갱신!
+  renderAll();
+}
+function viewJapanese(){
+  const learned=getJpLearned(), total=jpAllCount(), done=jpLearnedCount();
+  const ci=ui.jpCat||0, cat=JAPANESE_PHRASES[ci];
+  let html=`<div class="wrap" style="padding-bottom:4px;">
+    <div class="card" style="text-align:center;"><h3 style="justify-content:center;">🇯🇵 여행 일본어 미션</h3>
+      <p>카드를 탭하면 발음을 들려줘요.<br>외운 표현을 체크하면 <b>5점씩 랭킹에 합산</b>돼요!</p>
+      <div class="progress" style="margin-top:10px;"><i style="width:${Math.round(done/total*100)}%"></i></div>
+      <p style="margin-top:6px; font-size:12.5px; color:var(--brass-deep); font-weight:700;">${done} / ${total} 표현 외웠어요 (+${done * 5}점)</p>
+    </div>
+  </div>
+  <div class="jpcat-grid">${JAPANESE_PHRASES.map((c,i)=>`<button class="pill ${ci===i?'active':''}" onclick="ui.jpCat=${i}; renderAll();">${c.icon}${c.cat}</button>`).join('')}</div>
+  <div class="wrap" style="padding-top:8px;">`;
+  html+=cat.items.map((item,ii)=>{
+    const on=!!learned[jpKey(ci,ii)];
+    return `<div class="jpcard ${on?'on':''}">
+      <div class="jpcard-main" onclick="speakPhraseAt(${ci},${ii})">
+        <div class="jpjp">${escapeHtml(item.jp)} <span class="jpspk">🔊</span></div>
+        <div class="jpromaji">${escapeHtml(item.romaji)}</div>
+        <div class="jpkr">${escapeHtml(item.kr)}</div>
+      </div>
+      <button class="jplearn ${on?'on':''}" onclick="toggleJpLearned(${ci},${ii})">${on?'✅ 외웠어요':'☐ 외우기'}</button>
+    </div>`;
+  }).join('');
+  html+=`</div>`;
+  return html;
+}
+
+/* ---------- 랭킹 ---------- */
+function viewRank(){
+  return `<div class="wrap">
+    <div class="card"><label class="field">내 이름 등록 (랭킹 참여)</label>
+      <div style="display:flex; gap:8px;"><input type="text" id="nameInput" placeholder="이름 입력" value="${escAttr(getMyName())}"><button class="btn" onclick="registerName()">등록</button></div>
+    </div>
+    <div class="subtabs" style="padding-left:0; padding-right:0;">
+      <button class="pill ${ui.rankSub!=='photo'?'active':''}" onclick="ui.rankSub='total'; renderAll();">🏆 전체 랭킹</button>
+      <button class="pill ${ui.rankSub==='photo'?'active':''}" onclick="ui.rankSub='photo'; renderAll();">📸 포토 랭킹</button>
+    </div>
+    ${isAdminSession?`<div class="banner" style="margin-bottom:10px;">🔒 관리자 모드 — 이름 옆 ✕ 버튼으로 잘못된 기록을 삭제할 수 있어요.</div>`:''}
+    <div id="rankBody"><div class="empty">불러오는 중...</div></div>
+    ${!firebaseReady?`<div class="banner" style="margin-top:12px;">⚠️ 공유 랭킹 서버 연결에 문제가 있어요. 지금은 이 기기에서만 보이는 미리보기예요.</div>`:''}
+    <div style="display:flex; gap:8px; margin-top:14px;">
+      <button class="btn ghost block sm" onclick="shareRanking('total')">🔗 전체랭킹 공유</button>
+      <button class="btn ghost block sm" onclick="shareRanking('photo')">🔗 포토랭킹 공유</button>
+    </div>
+  </div>`;
+}
+async function loadRankBody(){
+  const el=document.getElementById('rankBody'); if(!el) return;
+  const list=await fetchRanking(); const key=ui.rankSub==='photo'?'photoScore':'totalScore';
+  const sorted=list.slice().sort((a,b)=>(b[key]||0)-(a[key]||0));
+  if(sorted.length===0){ el.innerHTML='<div class="empty">아직 등록된 친구가 없어요. 이름을 등록하고 미션에 도전해보세요!</div>'; return; }
+  el.innerHTML=`<div class="ranklist">`+sorted.map((r,i)=>{ const medal=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    return `<div class="rankrow"><div class="rankno ${medal}">${i+1}</div><div class="rankname">${escapeHtml(r.name)}</div><div class="rankscore">${r[key]||0}점</div>${isAdminSession?`<button class="rdelete" onclick="onDeleteRanking(${i})" title="삭제">✕</button>`:''}</div>`; }).join('')+`</div>`;
+  window.__rankSorted=sorted;
+}
+async function onDeleteRanking(i){
+  const r=(window.__rankSorted||[])[i]; if(!r) return;
+  if(!confirm(`'${r.name}' 랭킹 기록을 삭제할까요? 되돌릴 수 없어요.`)) return;
+  const ok=await deleteRankingEntry(r.name);
+  if(ok){ toast('삭제했어요.'); loadRankBody(); } else toast('삭제에 실패했어요.');
+}
+function registerName(){
+  const v=document.getElementById('nameInput').value.trim(); if(!v){ toast('이름을 입력해주세요.'); return; }
+  lsSet('myname', v); toast(v+'(으)로 등록했어요!'); syncMyScore(); renderAll();
+}
+async function shareRanking(kind){
+  const list=await fetchRanking(); const key=kind==='photo'?'photoScore':'totalScore';
+  const sorted=list.slice().sort((a,b)=>(b[key]||0)-(a[key]||0)).slice(0,10);
+  const title=kind==='photo'?'📸 포토 랭킹':'🏆 전체 랭킹';
+  const text=`${TRIP.title} ${title}\n`+(sorted.length? sorted.map((r,i)=>`${i+1}. ${r.name} - ${r[key]||0}점`).join('\n') : '아직 기록이 없어요.');
+  if(navigator.share){ try{ await navigator.share({title, text}); return; }catch(e){} }
+  try{ await navigator.clipboard.writeText(text); toast('랭킹을 복사했어요! 카톡 등에 붙여넣어보세요 📋'); }catch(e){ toast('공유에 실패했어요.'); }
+}
+
+/* ---------- 사진 ---------- */
+function viewPhoto(){
+  return `<div class="subtabs" style="padding-left:16px; padding-right:16px;">
+    <button class="pill ${ui.photoSub!=='shared'?'active':''}" onclick="ui.photoSub='mine'; renderAll();">📷 내 사진</button>
+    <button class="pill ${ui.photoSub==='shared'?'active':''}" onclick="ui.photoSub='shared'; renderAll();">🌍 공유 갤러리</button>
+  </div>
+  <div class="wrap" style="padding-top:6px;">${ui.photoSub==='shared'?sharedGalleryHtml():myPhotoHtml()}</div>`;
+}
+function getMyPhotos(){ return lsGet('my_photos', []); }
+function myPhotoHtml(){
+  const photos=getMyPhotos();
+  let html=`<label class="upload-box" style="display:block;">📷 사진 추가하기<input type="file" accept="image/*" style="display:none" onchange="addMyPhoto(this)"></label>`;
+  if(photos.length===0) html+='<div class="empty">아직 사진이 없어요. 여행지에서 찍은 사진을 올려보세요! 📸</div>';
+  else html+=`<div class="pgrid" style="margin-top:14px;">`+photos.slice().reverse().map(p=>`<div class="pitem"><img src="${p.img}"><div class="pcap">${escapeHtml(p.caption||'')}</div></div>`).join('')+`</div>`;
+  return html;
+}
+async function addMyPhoto(input){
+  const file=input.files[0]; if(!file) return;
+  try{ const dataUrl=await compressImage(file, 900, 0.7); const photos=getMyPhotos(); photos.push({img:dataUrl, ts:Date.now()}); lsSet('my_photos', photos); toast('사진을 저장했어요! (+2점)'); renderAll(); syncMyScore(); }
+  catch(e){ toast('사진을 불러오지 못했어요.'); }
+}
+function sharedGalleryHtml(){
+  let html=''; if(!firebaseReady) html+=`<div class="banner">⚠️ 공유 갤러리 서버 연결에 문제가 있어요. 지금은 이 기기에만 저장돼요.</div>`;
+  if(isAdminSession) html+=`<div class="banner" style="margin-bottom:10px;">🔒 관리자 모드 — 사진 위 ✕ 버튼으로 부적절한 사진을 삭제할 수 있어요.</div>`;
+  html+=`<div class="card"><label class="field">사진 업로드</label>
+    <label class="upload-box" style="display:block;">🖼️ 공유할 사진 선택<input type="file" accept="image/*" style="display:none" onchange="pickSharedPhoto(this)"></label>
+    <input type="text" id="galCaption" placeholder="사진 설명 (선택)" style="margin-top:10px;">
+    <button class="btn gold block" style="margin-top:10px;" onclick="uploadSharedPhoto()">올리기</button>
+  </div>
+  <div class="row-between"><div class="section-title" style="margin:4px 0;">🖼️ 친구들 사진</div><button class="btn ghost sm" onclick="loadGallery()">🔄 새로고침</button></div>
+  <div id="galleryBody"><div class="empty">불러오는 중...</div></div>`;
+  return html;
+}
+let pendingSharedPhoto=null;
+async function pickSharedPhoto(input){ const file=input.files[0]; if(!file) return; try{ pendingSharedPhoto=await compressImage(file, 800, 0.6); toast('사진을 선택했어요. 올리기를 눌러주세요.'); }catch(e){ toast('사진을 불러오지 못했어요.'); } }
+async function uploadSharedPhoto(){ if(!pendingSharedPhoto){ toast('사진을 먼저 선택해주세요.'); return; } const name=getMyName()||'이름 미등록'; const caption=document.getElementById('galCaption').value.trim(); await addGalleryPhoto({name, img:pendingSharedPhoto, caption, createdAt:Date.now()}); pendingSharedPhoto=null; lsSet('shared_photo_count', lsGet('shared_photo_count',0)+1); toast('갤러리에 올렸어요! (+2점)'); loadGallery(); syncMyScore(); }
+async function loadGallery(){ const el=document.getElementById('galleryBody'); if(!el) return; const list=await fetchGallery(); window.__gallery=list; if(list.length===0){ el.innerHTML='<div class="empty">아직 올라온 사진이 없어요.</div>'; return; } el.innerHTML=`<div class="pgrid">`+list.map((p,i)=>`<div class="pitem">${isAdminSession?`<button class="pdelete" onclick="onDeleteGalleryPhoto(${i})" title="삭제">✕</button>`:''}<img src="${p.img}"><div class="pcap">${escapeHtml(p.name||'')}${p.caption?' · '+escapeHtml(p.caption):''}</div></div>`).join('')+`</div>`; }
+async function onDeleteGalleryPhoto(i){ if(!confirm('이 사진을 삭제할까요? 되돌릴 수 없어요.')) return; const ok=await deleteGalleryPhotoAt(window.__gallery||[], i); if(ok){ toast('삭제했어요.'); loadGallery(); } else toast('삭제에 실패했어요.'); }
+
+/* ---------- 정보 ---------- */
+function viewInfo(){
+  let body='';
+  if(ui.infoSub==='schedule') body=infoSchedule(); else if(ui.infoSub==='packing') body=infoPacking(); else if(ui.infoSub==='allowance') body=infoAllowance(); else if(ui.infoSub==='seats') body=infoSeats(); else if(ui.infoSub==='guide') body=infoGuide(); else if(ui.infoSub==='safety') body=infoSafety(); else if(ui.infoSub==='contacts') body=infoContacts(); else body=infoPrep();
+  return `<div class="subtabs-grid">${INFO_TABS.map(([id,label])=>`<button class="pill ${ui.infoSub===id?'active':''}" onclick="ui.infoSub='${id}'; renderAll();">${label}</button>`).join('')}</div>
+  <div class="wrap" style="padding-top:6px;">${body}</div>`;
+}
+function infoSchedule(){
+  const tabs=ITINERARY.map((d,i)=>`<button class="pill ${ui.dayTab===i?'active':''}" style="width:100%; justify-content:center; text-align:center;" onclick="ui.dayTab=${i}; renderAll();">${d.label}<br><span style="font-size:10.5px; opacity:.8;">${fmtMD(d.date)}</span></button>`).join('');
+  const day=ITINERARY[ui.dayTab];
+  return `<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;">${tabs}</div>
+  <div class="card"><h3>${day.theme}</h3>
+    <div class="tl">${day.events.map(e=>`<div class="tl-item"><div class="tl-time">${e.time||''}</div><div class="tl-title">${e.icon}${e.title}</div></div>`).join('')}</div>
+    <hr class="dashed"><p><b>🍽️ 식사</b> · ${day.meals}</p><p style="margin-top:6px;"><b>🏨 숙소</b> · ${day.hotel}</p>
+  </div>`;
+}
+function packingFlat(){ let idx=0; return PACKING.flatMap(g=>g.items.map(it=>({key:'i'+(idx++), text:it}))); }
+function infoPacking(){
+  const flat=packingFlat(); const checked=lsGet('packing_checked', {}); const doneCount=flat.filter(it=>checked[it.key]).length;
+  let html=`<div class="card"><div class="row-between"><b>${doneCount} / ${flat.length} 완료</b><span>${Math.round(doneCount/flat.length*100)}%</span></div>
+    <div class="progress" style="margin-top:8px;"><i style="width:${doneCount/flat.length*100}%"></i></div></div>`;
+  let idx=0;
+  PACKING.forEach(g=>{ html+=`<div class="card"><h3>📦 ${g.group}</h3>`+g.items.map(it=>{ const key=flat[idx].key; idx++; const on=!!checked[key]; return `<div class="chk-row ${on?'done':''}"><div class="chk-box ${on?'on':''}" onclick="togglePacking('${key}')">${on?'✓':''}</div><span class="lbl">${it}</span></div>`; }).join('')+`</div>`; });
+  html+=`<div class="card"><h3>🚫 가져오면 안 돼요</h3>`+PACKING_BAN.map(it=>`<div class="chk-row"><div style="width:21px; text-align:center; color:var(--ink-faint);">·</div><span class="lbl">${it}</span></div>`).join('')+`</div>`;
+  return html;
+}
+function togglePacking(key){ const checked=lsGet('packing_checked',{}); checked[key]=!checked[key]; lsSet('packing_checked', checked); renderAll(); }
+function infoAllowance(){
+  const total=lsGet('allowance_total', null); const expenses=lsGet('expenses', []); const spent=expenses.reduce((s,e)=>s+Number(e.amount||0),0); const remain=total!==null? total-spent : null;
+  return `<div class="card" style="text-align:center;"><div style="font-size:12px; color:var(--ink-soft);">남은 용돈</div><div class="serif" style="font-size:26px; color:var(--navy-800); margin-top:4px;">${remain!==null? remain.toLocaleString()+'원' : '설정 필요'}</div></div>
+    <div class="card"><h3>⚙️ 총 용돈 설정</h3><div style="display:flex; gap:8px;"><input type="number" id="allowInput" placeholder="총 용돈 (원)" value="${total??''}"><button class="btn" onclick="setAllowance()">설정</button></div></div>
+    <div class="card"><h3>➖ 지출 기록</h3><div style="display:flex; gap:8px;"><input type="text" id="expLabel" placeholder="사용 내용"><input type="number" id="expAmount" placeholder="금액" style="max-width:110px;"></div><button class="btn ghost block sm" style="margin-top:8px;" onclick="addExpense()">추가</button>
+      ${expenses.length? `<hr class="dashed">`+expenses.slice().reverse().map(e=>`<div class="row-between" style="padding:6px 0;"><span>${escapeHtml(e.label)}</span><span>${Number(e.amount).toLocaleString()}원</span></div>`).join('') : `<div class="empty">아직 지출 내역이 없어요 🌟</div>`}</div>`;
+}
+function setAllowance(){ const v=Number(document.getElementById('allowInput').value); if(!v||v<0){ toast('금액을 입력해주세요.'); return; } lsSet('allowance_total', v); toast('용돈을 설정했어요.'); renderAll(); }
+function addExpense(){ const label=document.getElementById('expLabel').value.trim(); const amount=Number(document.getElementById('expAmount').value); if(!label||!amount){ toast('내용과 금액을 입력해주세요.'); return; } const list=lsGet('expenses',[]); list.push({label,amount}); lsSet('expenses',list); toast('지출을 기록했어요.'); renderAll(); }
+
+function busPairSlotCount(){ return Math.max(1, Math.ceil(TRIP.studentCount/2)); }
+function getBusPairs(){ const saved=lsGet('bus_pairs', null); const n=busPairSlotCount(); if(saved && Array.isArray(saved) && saved.length===n) return saved; return BUS_PAIRS_DEFAULT; }
+function busPairStudentName(id){ if(!id) return null; const roster=lsGet('roster', ROSTER_DEFAULT); const s=roster.find(r=>String(r.id)===String(id)); return s? s.name : null; }
+
+function renderBusGrid(bus){
+  // 12열 x 4석 = 총 48석 (47인승 버스 완벽 대응)
+  let grid = Array.from({length: 12}, () => [null, null, null, null]);
+  const isMine = bus.schools.some(([n])=>n===TRIP.shortName);
+  
+  if(isMine) {
+    const pairs = getBusPairs();
+    pairs.forEach(p => {
+      if(p.a || p.b) {
+        const r = Math.min(11, Math.max(0, (p.row || 1) - 1));
+        const isLeft = p.col !== 'R';
+        const nA = busPairStudentName(p.a) || '빈자리';
+        const nB = busPairStudentName(p.b) || '빈자리';
+        if(isLeft) { grid[r][0]={label:nA, mine:true}; grid[r][1]={label:nB, mine:true}; }
+        else { grid[r][2]={label:nA, mine:true}; grid[r][3]={label:nB, mine:true}; }
+      }
+    });
+  }
+
+  const others = [];
+  bus.schools.forEach(([sname, cnt]) => { if (isMine && sname === TRIP.shortName) return; for(let i=0;i<cnt;i++) others.push({label: sname, mine: false}); });
+  bus.staff.forEach(([sname, cnt]) => { for(let i=0;i<cnt;i++) others.push({label: sname, mine:false, staff:true}); });
+  
+  let oIdx = 0;
+  for(let r=0; r<12; r++) {
+    for(let c=0; c<4; c++) {
+      if(grid[r][c] === null && oIdx < others.length) { grid[r][c] = others[oIdx++]; }
+    }
+  }
+
+  return grid.map((row, r) => {
+    const renderSeat = (cell) => {
+      if(!cell) return `<div class="seat" style="border:1.5px dashed var(--line); background:transparent; color:transparent;">-</div>`;
+      return `<div class="seat ${cell.mine?'mine':''} ${cell.staff?'staff':''}" style="padding:8px 2px; font-size:10.5px; word-break:keep-all;">${escapeHtml(cell.label)}</div>`;
+    };
+    return `<div style="display:grid; grid-template-columns:26px 1fr 1fr 14px 1fr 1fr; gap:5px; align-items:center; margin-bottom:8px; text-align:center;">
+      <span style="font-size:11px; color:var(--ink-soft); font-weight:700;">${r+1}열</span>
+      ${renderSeat(row[0])} ${renderSeat(row[1])}
+      <div></div>
+      ${renderSeat(row[2])} ${renderSeat(row[3])}
+    </div>`;
+  }).join('');
+}
+
+function renderRoomAssignment(){
+  const roster=lsGet('roster', ROSTER_DEFAULT); const teacher=lsGet('teacher', TEACHER_DEFAULT);
+  const boys=roster.filter(r=>r.gender==='남').map(r=>r.name); const girls=roster.filter(r=>r.gender==='여').map(r=>r.name);
+  let bi=0, gi=0;
+  const rows=ROOMS_PLAN.map(r=>{
+    const parts=r.slots.map(s=>{
+      if(s.school===TRIP.shortName){
+        if(r.staff) return escapeHtml(teacher.name)+' (인솔교사)';
+        if(r.room.includes('여학생')){ const picked=girls.slice(gi,gi+s.count); gi+=s.count; return picked.map(escapeHtml).join(', ')||`${TRIP.shortName} 학생 ${s.count}명`; }
+        const picked=boys.slice(bi,bi+s.count); bi+=s.count; return picked.map(escapeHtml).join(', ')||`${TRIP.shortName} 학생 ${s.count}명`;
+      }
+      if(s.name) return `${s.school} ${escapeHtml(s.name)}`;
+      return `${s.school} ${r.staff?'인솔교사':(s.count>1? s.count+'명':'학생 1명')}`;
+    });
+    return `<div class="rankrow" style="align-items:flex-start;"><div class="avatar">${r.staff?'🧑‍🏫':'🛏️'}</div><div style="flex:1;"><div class="rankname">${r.room}</div><div style="font-size:12.5px; color:var(--ink-soft); margin-top:2px;">${parts.join(' · ')}</div></div></div>`;
+  }).join('');
+  return `<div class="ranklist">${rows}</div>`;
+}
+
+function infoSeats(){
+  const sub=ui.seatSub||'bus';
+  let html=`<div class="subtabs" style="padding-left:0; padding-right:0; margin-bottom:8px;">
+    <button class="pill ${sub!=='room'?'active':''}" onclick="ui.seatSub='bus'; renderAll();">🚌 버스 좌석</button>
+    <button class="pill ${sub==='room'?'active':''}" onclick="ui.seatSub='room'; renderAll();">🏨 방 배정</button>
+  </div>`;
+  if(sub==='room'){
+    html+=`<div class="section-title">🏨 숙소 방 배정</div>`+renderRoomAssignment()+`<div class="banner" style="margin-top:12px;">* 최종 배정은 담임 선생님 확인 후 공지돼요.</div>`;
+  } else {
+    const bi=ui.busIdx||0;
+    html+=`<div class="subtabs" style="padding-left:0; padding-right:0; margin-bottom:12px;">`+BUSES_PLAN.map((b,i)=>`<button class="pill ${bi===i?'active':''}" onclick="ui.busIdx=${i}; renderAll();">🚌 ${b.id}</button>`).join('')+`</div>`;
+    const bus=BUSES_PLAN[bi]; const isMine=bus.schools.some(([n])=>n===TRIP.shortName);
+    html+=`<div class="card"><div class="row-between"><h3 style="margin:0;">${bus.id}${isMine?` <span class="tag">${TRIP.shortName} 탑승</span>`:''}</h3><span style="font-size:12px; color:var(--ink-faint);">총 ${bus.total}명</span></div>
+      <p style="margin-top:6px;">${bus.note}</p><hr class="dashed">
+      ${renderBusGrid(bus)}
+      <div style="display:flex; gap:14px; margin-top:12px; font-size:11.5px; color:var(--ink-soft);"><span>🟧 ${TRIP.shortName} 학생</span><span>⬜ 다른 학교 학생</span></div>
+    </div>`;
+  }
+  return html;
+}
+
+function infoGuide(){
+  let html=`<div class="section-title">📍 우리가 가는 곳 (스탬프 랠리)</div>`;
+  html+=GUIDE.map(g=>{ const mapUrl='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(g.name+' '+g.area+' Japan');
+    return `<div class="gcard"><div class="gcard-body"><div class="row-between"><h3 style="margin:0; display:flex; align-items:center; gap:7px;"><span style="font-size:19px;">${g.icon}</span>${g.name}</h3><span class="tag">${g.area}</span></div><p style="margin-top:6px;">${g.desc}</p><div class="banner" style="margin-top:10px;">💡 ${g.tip}</div><a class="btn ghost block sm" style="display:block; text-align:center; text-decoration:none;" href="${mapUrl}" target="_blank" rel="noopener">🗺️ 구글 지도에서 보기</a></div></div>`; }).join('');
+  html+=`<div class="section-title" style="margin-top:6px;">💡 알아두면 좋아요</div><p style="font-size:12px; color:var(--ink-soft); margin:-4px 0 12px;">방문 일정에는 없지만, 여행 중 필요할 때 찾아두면 도움이 되는 장소들이에요. 우리가 실제로 가는 도시 근처를 기준으로 찾아줘요.</p>`;
+  html+=USEFUL_SPOTS.map(g=>{
+    const kw=g.name.replace(/\s*\(.*?\)\s*/g,'');
+    const cityBtns=Object.entries(CITY_ANCHORS).map(([city,c])=>{
+      const mapUrl='https://www.google.com/maps/search/'+encodeURIComponent(kw)+'/@'+c.lat+','+c.lng+',16z';
+      return `<a class="btn ghost sm" style="flex:1; text-align:center; text-decoration:none; padding:8px 4px;" href="${mapUrl}" target="_blank" rel="noopener">${city}</a>`;
+    }).join('');
+    return `<div class="gcard"><div class="gcard-body"><div class="row-between"><h3 style="margin:0; display:flex; align-items:center; gap:7px;"><span style="font-size:19px;">${g.icon}</span>${g.name}</h3><span class="tag blue">${g.area}</span></div><p style="margin-top:6px;">${g.desc}</p><p style="font-size:11px; color:var(--ink-faint); margin:8px 0 5px;">🗺️ 우리가 가는 곳 근처에서 찾기</p><div style="display:flex; gap:6px;">${cityBtns}</div></div></div>`; }).join('');
+  return html;
+}
+function infoSafety(){ const sec=(title,list)=>`<div class="card"><h3>${title}</h3>${list.map((r,i)=>`<div style="display:flex; gap:10px; padding:8px 0; ${i?'border-top:1px solid var(--line);':''}"><span style="color:var(--brass-deep); font-weight:700;">${i+1}</span><span style="font-size:13.5px;">${r}</span></div>`).join('')}</div>`; return sec('🛡️ 안전 수칙', SAFETY_RULES)+sec('📱 휴대폰 사용', PHONE_RULES)+sec('💴 용돈 · 결제', MONEY_RULES)+sec('🏨 호텔 매너 7가지', HOTEL_MANNERS)+sec('🌏 해외여행 특별 수칙', OVERSEAS_RULES); }
+function infoContacts(){
+  const teacher=lsGet('teacher', TEACHER_DEFAULT), principal=lsGet('principal', PRINCIPAL_DEFAULT), school=lsGet('school_contact', SCHOOL_CONTACT_DEFAULT);
+  const row=(icon,name,phone,fallback)=>`<div class="contact-row"><div class="avatar">${icon}</div><div style="flex:1;"><div style="font-weight:600; font-size:14px;">${name}</div><div style="font-size:12.5px; color:var(--ink-soft);">${phone||fallback||'등록 필요'}</div></div>${phone?`<a class="callbtn" href="tel:${String(phone).replace(/[^0-9+]/g,'')}">📞</a>`:''}</div>`;
+  let html=`<div class="card"><h3>👩‍🏫 담임 · 학교</h3>${row('🧑‍🏫', escapeHtml(teacher.name)+' (인솔교사)', teacher.phone)}${row('👑', escapeHtml(principal.name), principal.phone, '가정통신문 참고')}${row('🏫', TRIP.schoolName+' 교무실', school.office)}</div>`;
+  html+=`<div class="card"><h3>🧭 현지 인솔 · 가이드</h3>`+LOCAL_GUIDES.map(g=>row('🚏', escapeHtml(g.name)+' · '+escapeHtml(g.role), g.phone)).join('')+`</div>`;
+  html+=`<div class="card"><h3>🇯🇵 현지 긴급연락 (일본)</h3>${row('🚓','일본 경찰', '110')} ${row('🚑','일본 소방·구급', '119')} ${row('🏛️', CONTACTS_FIXED.embassy.name, CONTACTS_FIXED.embassy.phone)} ${row('☎️', CONTACTS_FIXED.consular.name, CONTACTS_FIXED.consular.phone)} ${row('🆘', CONTACTS_FIXED.emergency.name, CONTACTS_FIXED.emergency.phone)} ${row('🏥', CONTACTS_FIXED.hospital.name, CONTACTS_FIXED.hospital.phone)}</div>`;
+  html+=`<div class="card"><h3>🇰🇷 국내 참고 · 교육청</h3>${row('🚑','국내 소방·구급', '119')} ${row('🚓','국내 경찰', '112')} ${row('🩺','응급의료정보센터', '1339')} ${row('📚', CONTACTS_FIXED.office.name, CONTACTS_FIXED.office.phone)} ${row('📚', CONTACTS_FIXED.province.name, CONTACTS_FIXED.province.phone)}</div>`;
+  return html;
+}
+function infoPrep(){ const today=todayStr(); return `<div class="card"><h3>🗂️ 추진 일정</h3><div class="tl">`+PREP_TIMELINE.slice().sort((a,b)=>a.start.localeCompare(b.start)).map(p=>{ const status=today<p.start?'예정':(today>p.end?'완료':'진행중'); const color=status==='완료'?'var(--good)':status==='진행중'?'var(--brass-deep)':'var(--ink-faint)'; return `<div class="tl-item"><div class="tl-time">${fmtMD(p.start)}${p.start!==p.end?' ~ '+fmtMD(p.end):''}</div><div class="tl-title">${p.title} <span style="font-size:11px; color:${color}; font-weight:700;">· ${status}</span></div></div>`; }).join('')+`</div></div>`; }
+
+/* ---------- 관리자 ---------- */
+function openAdminGate(){ openCenter(`<button class="closeX" onclick="closeModal()">✕</button><h3>🔒 관리자 로그인</h3><p style="font-size:13px; color:var(--ink-soft); margin-bottom:12px;">담임 선생님만 사용해주세요.</p><input type="password" id="adminPass" placeholder="비밀번호"><button class="btn gold block" style="margin-top:12px;" onclick="checkAdminPass()">확인</button><p style="font-size:11px; color:var(--ink-faint); margin-top:10px;">기본 비밀번호: hwajeong2026</p>`); }
+function checkAdminPass(){ const v=document.getElementById('adminPass').value; if(v===lsGet('admin_pass','hwajeong2026')){ isAdminSession=true; closeModal(); openAdminPanel(); } else toast('비밀번호가 올바르지 않아요.'); }
+function pairOptionsHtml(roster, selectedId){ let html='<option value="">미정</option>'; roster.forEach(s=>{ html+=`<option value="${s.id}" ${String(selectedId)===String(s.id)?'selected':''}>${escAttr(s.name)}</option>`; }); return html; }
+function openAdminPanel(){
+  const roster=lsGet('roster', ROSTER_DEFAULT), teacher=lsGet('teacher', TEACHER_DEFAULT), principal=lsGet('principal', PRINCIPAL_DEFAULT), school=lsGet('school_contact', SCHOOL_CONTACT_DEFAULT);
+  const pairs=getBusPairs();
+  openSheet(`<button class="closeX" onclick="closeModal()">✕</button><h3>⚙️ 관리자 설정</h3>
+    <label class="field">우리 반 학생 명단 (${TRIP.studentCount}명)</label>
+    <div>${roster.map(s=>`<div style="display:flex; gap:6px; margin-bottom:8px;">
+        <input type="text" value="${escAttr(s.name)}" class="rname" style="flex:1;">
+        <select class="rgender" style="border:1.5px solid var(--line); border-radius:11px; padding:0 8px; background:var(--paper);">
+          <option value="남" ${s.gender==='남'?'selected':''}>남</option><option value="여" ${s.gender==='여'?'selected':''}>여</option>
+        </select></div>`).join('')}</div>
+    <hr class="dashed"><label class="field">🚌 버스 짝꿍 위치 지정 (1~12열)</label>
+    ${pairs.map((p,i)=>`<div style="margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid #f0f0f0;">
+      <div class="pairselrow" style="margin-bottom:6px;">
+        <span class="no" style="font-weight:700;">${i+1}번짝</span>
+        <select class="pairSel" data-slot="${i}" data-side="a" style="flex:1;">${pairOptionsHtml(roster, p.a)}</select>
+        <span style="color:var(--ink-faint);">&amp;</span>
+        <select class="pairSel" data-slot="${i}" data-side="b" style="flex:1;">${pairOptionsHtml(roster, p.b)}</select>
+      </div>
+      <div class="pairselrow" style="padding-left:38px; display:flex; gap:6px;">
+        <span style="font-size:11px; color:var(--ink-soft); width:28px;">위치:</span>
+        <select class="pairRow" data-slot="${i}" style="flex:1; border:1.5px solid var(--line); border-radius:8px; padding:4px;">
+          ${Array.from({length:12}, (_,r)=>`<option value="${r+1}" ${p.row===(r+1)?'selected':''}>${r+1}열</option>`).join('')}
+        </select>
+        <select class="pairCol" data-slot="${i}" style="flex:1; border:1.5px solid var(--line); border-radius:8px; padding:4px;">
+          <option value="L" ${p.col!=='R'?'selected':''}>왼쪽 (2석)</option><option value="R" ${p.col==='R'?'selected':''}>오른쪽 (2석)</option>
+        </select>
+      </div>
+    </div>`).join('')}
+    <label class="field">담임 선생님</label>
+    <input type="text" id="teacherName" placeholder="이름" value="${escAttr(teacher.name)}" style="margin-bottom:8px;">
+    <input type="tel" id="teacherPhone" placeholder="연락처" value="${escAttr(teacher.phone)}">
+    <hr class="dashed"><label class="field">교장 선생님</label>
+    <input type="text" id="principalName" placeholder="이름" value="${escAttr(principal.name)}" style="margin-bottom:8px;">
+    <input type="tel" id="principalPhone" placeholder="연락처" value="${escAttr(principal.phone)}">
+    <hr class="dashed"><label class="field">학교 교무실 번호</label>
+    <input type="tel" id="schoolPhone" value="${escAttr(school.office)}" style="margin-bottom:8px;">
+    <hr class="dashed"><label class="field">관리자 비밀번호 변경 (선택)</label>
+    <input type="password" id="newPass" placeholder="새 비밀번호">
+    <button class="btn gold block" style="margin-top:16px;" onclick="saveAdmin()">저장</button>
+    <button class="btn ghost block" style="margin-top:8px;" onclick="confirmReset()">🗑️ 이 기기 기록 초기화</button>
+  `);
+}
+function saveAdmin(){
+  const names=[...document.querySelectorAll('.rname')], genders=[...document.querySelectorAll('.rgender')];
+  const roster=names.map((el,i)=>({id:i+1, name:el.value.trim()||('학생'+(i+1)), gender:genders[i].value}));
+  lsSet('roster', roster);
+  const pairs=getBusPairs().map((_,i)=>({
+    a: (document.querySelector(`.pairSel[data-slot="${i}"][data-side="a"]`)||{}).value || null,
+    b: (document.querySelector(`.pairSel[data-slot="${i}"][data-side="b"]`)||{}).value || null,
+    row: Number((document.querySelector(`.pairRow[data-slot="${i}"]`)||{}).value) || 1,
+    col: (document.querySelector(`.pairCol[data-slot="${i}"]`)||{}).value || 'L'
+  }));
+  lsSet('bus_pairs', pairs);
+  const teacherInfo = {name:document.getElementById('teacherName').value.trim()||TEACHER_DEFAULT.name, phone:document.getElementById('teacherPhone').value.trim()};
+  lsSet('teacher', teacherInfo);
+  const principalInfo = {name:document.getElementById('principalName').value.trim()||PRINCIPAL_DEFAULT.name, phone:document.getElementById('principalPhone').value.trim()};
+  lsSet('principal', principalInfo);
+  const schoolInfo = {office:document.getElementById('schoolPhone').value.trim()};
+  lsSet('school_contact', schoolInfo);
+  const np=document.getElementById('newPass').value.trim(); if(np) lsSet('admin_pass', np);
+
+  if(firebaseReady){
+    db.collection('settings').doc(TRIP.shortName).set({
+      roster: roster, bus_pairs: pairs, teacher: teacherInfo, principal: principalInfo, school_contact: schoolInfo, updatedAt: Date.now()
+    }, {merge:true}).catch(e=>console.warn("설정 전송 실패", e));
+  }
+  toast('저장했어요!'); closeModal(); renderAll();
+}
+function confirmReset(){ if(confirm('이 기기에 저장된 모든 기록(퀴즈, 스탬프, 사진, 용돈 등)을 초기화할까요?')) resetAllData(); }
+function resetAllData(){ Object.keys(localStorage).filter(k=>k.startsWith('hwajeong_')).forEach(k=>localStorage.removeItem(k)); toast('초기화했어요.'); closeModal(); renderAll(); }
+
+/* ---------- 시작 ---------- */
+function init(){
+  try{
+    if(firebaseReady){
+      db.collection('settings').doc(TRIP.shortName).onSnapshot(snap => {
+        if(snap.exists){
+          const data = snap.data();
+          if(data.roster) lsSet('roster', data.roster);
+          if(data.bus_pairs) lsSet('bus_pairs', data.bus_pairs);
+          if(data.teacher) lsSet('teacher', data.teacher);
+          if(data.principal) lsSet('principal', data.principal);
+          if(data.school_contact) lsSet('school_contact', data.school_contact);
+          renderAll();
+        }
+      });
+    }
+    renderAll();
+  }
+  catch(e){ console.error(e); document.getElementById('main').innerHTML='<div class="wrap"><div class="card"><h3>문제가 발생했어요</h3><p>'+escapeHtml(String(e.message||e))+'</p></div></div>'; }
+}
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
