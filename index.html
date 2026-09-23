@@ -251,7 +251,7 @@ label.field{display:block; font-size:12px; color:var(--ink-soft); margin:0 0 6px
    그래서 GitHub에 새 버전을 올려도 아이콘으로 열면 계속 예전 내용이 보일 수 있어요.
    화면이 다시 보일 때마다(홈 화면 아이콘으로 다시 열 때 포함) 서버의 최신 파일을
    캐시 없이 확인해서, 버전이 다르면 자동으로 새로고침해요. */
-const APP_BUILD = '2026-09-22-09';
+const APP_BUILD = '2026-09-23-01';
 let __updateChecking = false;
 async function checkForUpdate(){
   if(__updateChecking) return;
@@ -355,11 +355,13 @@ const STAMP_BONUS_TIERS = [ {count:5, bonus:20}, {count:7, bonus:50}, {count:10,
 
 /* 사전연습 탭 "우리 동네 스탬프" — 학교 근처 실제 공공시설(면사무소·우체국·농협·파출소 등)에서
    여행 전에 GPS 스탬프 사용법을 미리 연습해보는 용도예요. 실제 여행지 스탬프(GUIDE)와는 완전히
-   별개의 목록·저장키(prestamps)를 써요. ⚠️ 정확한 건물 좌표는 지도 API 없이 확인이 어려워
-   학교 주소를 기준으로 추정한 좌표를 사용했어요 — 실제로 그 자리에 한 번 가보시고 앱이 반응하지
-   않으면 좌표를 알려주시면 정확하게 고쳐드릴게요. 반경(PRE_STAMP_RADIUS)을 넉넉하게 잡아둔 것도
-   그 이유예요. */
-const PRE_STAMP_RADIUS = 300; // 미터
+   별개의 목록·저장키(prestamps)를 써요.
+   ⚠️ 아래 PRE_STAMPS 좌표는 "기본값(추정치)"일 뿐이라 실제 위치와 크게 다를 수 있어요.
+   선생님이 ⚙️관리자 설정 → "우리 동네 스탬프 위치 등록"에서 각 장소에 직접 가서
+   "📍 지금 여기로 등록"을 누르면 휴대폰 GPS 좌표가 저장되고(set:true), Firestore
+   settings 문서의 pre_stamp_spots로 학생들 폰에도 자동으로 전달돼요.
+   실제로 쓰이는 목록은 항상 getPreStampList()로 가져와요. */
+const PRE_STAMP_RADIUS = 100; // 미터 (여기에 GPS 오차를 최대 50m까지 더해서 판정)
 const PRE_STAMPS = [
   {name:'화정면사무소', icon:'🏛️', lat:35.2395, lng:128.178, points:10, desc:'우리 마을의 여러 행정업무를 처리하는 곳이에요.'},
   {name:'화정우체국', icon:'📮', lat:35.238, lng:128.1795, points:10, desc:'편지와 택배를 보내고 받는 곳이에요.'},
@@ -819,24 +821,83 @@ function tryStamp(){
 }
 /* ---------- 사전연습 "우리 동네 스탬프" (여행지 스탬프 랠리와 완전히 별개) ---------- */
 function getPreStamps(){ return lsGet('prestamps', {}); }
-function preStampPointsEarned(){ const st=getPreStamps(); return PRE_STAMPS.reduce((s,g)=> s+(st[g.name]? g.points:0), 0); }
+/* 선생님이 현장에서 등록한 목록이 있으면 그걸, 없으면 기본값(추정 좌표)을 씀 */
+function getPreStampList(){
+  const v=lsGet('pre_stamp_spots', null);
+  return (Array.isArray(v) && v.length) ? v : PRE_STAMPS;
+}
+function preStampReady(){ return getPreStampList().every(g=>g.set); }
+function preStampPointsEarned(){ const st=getPreStamps(); return getPreStampList().reduce((s,g)=> s+(st[g.name]? (g.points||10):0), 0); }
+function fmtDist(m){ return m<1000 ? Math.round(m)+'m' : (Math.round(m/100)/10)+'km'; }
 function tryPreStamp(){
   const status=document.getElementById('preGpsStatus');
   if(!navigator.geolocation){ status.textContent='이 기기에서는 위치 확인을 지원하지 않아요.'; return; }
-  status.textContent='위치 확인 중...';
+  status.textContent='위치 확인 중... (바깥에서 잠시 기다려주세요)';
   navigator.geolocation.getCurrentPosition(pos=>{
     const {latitude,longitude,accuracy}=pos.coords; let nearest=null, nd=Infinity;
-    PRE_STAMPS.forEach(g=>{ const dist=haversine(latitude,longitude,g.lat,g.lng); if(dist<nd){ nd=dist; nearest=g; } });
+    const list=getPreStampList();
+    list.forEach(g=>{ const dist=haversine(latitude,longitude,g.lat,g.lng); if(dist<nd){ nd=dist; nearest=g; } });
+    const limit = PRE_STAMP_RADIUS + Math.min(accuracy||0, 50); // GPS 오차를 최대 50m까지 봐줌
     let msg='';
-    if(nearest && nd<=PRE_STAMP_RADIUS){
+    if(nearest && nd<=limit){
       const st=getPreStamps();
-      if(!st[nearest.name]){ st[nearest.name]=Date.now(); lsSet('prestamps',st); toast('🎉 '+nearest.name+' 스탬프 획득! +'+nearest.points+'점'); celebrate(); syncMyScore(); }
+      if(!st[nearest.name]){ st[nearest.name]=Date.now(); lsSet('prestamps',st); toast('🎉 '+nearest.name+' 스탬프 획득! +'+(nearest.points||10)+'점'); celebrate(); syncMyScore(); }
       else toast('이미 스탬프를 받은 곳이에요.');
       msg=`${nearest.name}까지 약 ${Math.round(nd)}m · GPS 정확도 ±${Math.round(accuracy)}m`;
-    } else if(nearest){ msg=`가장 가까운 곳: ${nearest.name} (약 ${(Math.round(nd/100)/10)}km) — ${PRE_STAMP_RADIUS}m 이내로 이동해보세요.`; }
+    } else if(nearest){
+      msg=`가장 가까운 곳: ${nearest.name} (약 ${fmtDist(nd)}) — ${PRE_STAMP_RADIUS}m 이내로 가까이 가보세요.`;
+      if(!nearest.set) msg+=' ※ 아직 선생님이 이 장소의 정확한 위치를 등록하지 않았어요.';
+    }
     renderAll();
     const status2=document.getElementById('preGpsStatus'); if(status2) status2.textContent=msg;
-  }, ()=>{ const s=document.getElementById('preGpsStatus'); if(s) s.textContent='위치 정보를 가져올 수 없어요. 위치 권한을 확인해주세요.'; }, {enableHighAccuracy:true, timeout:10000});
+  }, ()=>{ const s=document.getElementById('preGpsStatus'); if(s) s.textContent='위치 정보를 가져올 수 없어요. 위치 권한을 확인해주세요.'; }, {enableHighAccuracy:true, timeout:15000, maximumAge:0});
+}
+/* ---------- 관리자: 우리 동네 스탬프 위치를 현장에서 등록 ----------
+   선생님이 그 장소 앞에 서서 버튼을 누르면 휴대폰 GPS 좌표를 바로 저장하고,
+   Firestore settings 문서에도 즉시 올려서 학생 폰에 자동 반영돼요.
+   (다른 관리자 입력칸을 날리지 않도록 패널을 다시 그리지 않고 그 줄만 갱신) */
+function savePreSpots(list){
+  lsSet('pre_stamp_spots', list);
+  if(firebaseReady){
+    db.collection('settings').doc(TRIP.shortName).set({ pre_stamp_spots: list, updatedAt: Date.now() }, {merge:true})
+      .catch(e=>{ console.warn('스탬프 위치 전송 실패', e); toast('⚠️ 서버 전송 실패 — 인터넷 연결을 확인해주세요.'); });
+  }
+}
+function preSpotsFromPanel(){
+  const list=getPreStampList().map(g=>({...g}));
+  document.querySelectorAll('.psName').forEach(el=>{ const i=Number(el.dataset.idx); if(list[i]){ const v=el.value.trim(); if(v) list[i].name=v; } });
+  return list;
+}
+function preSpotStatusHtml(g){
+  return g.set
+    ? `<span style="color:var(--good); font-weight:700;">✅ 등록됨</span> <span style="color:var(--ink-faint);">(${Number(g.lat).toFixed(5)}, ${Number(g.lng).toFixed(5)}${g.acc?` · ±${g.acc}m`:''})</span>`
+    : `<span style="color:var(--stamp); font-weight:700;">⚠️ 아직 등록 안 됨</span> <span style="color:var(--ink-faint);">— 그 장소 앞에서 눌러주세요</span>`;
+}
+function registerPreSpot(i){
+  if(!navigator.geolocation){ toast('이 기기에서는 위치 확인을 지원하지 않아요.'); return; }
+  const line=document.getElementById('psStatus'+i); if(line) line.innerHTML='📡 위치 확인 중... 건물 앞 바깥에서 잠시 기다려주세요';
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const {latitude,longitude,accuracy}=pos.coords;
+    const list=preSpotsFromPanel();
+    list[i]={...list[i], lat:Number(latitude.toFixed(6)), lng:Number(longitude.toFixed(6)), set:true, acc:Math.round(accuracy)};
+    savePreSpots(list);
+    const l2=document.getElementById('psStatus'+i); if(l2) l2.innerHTML=preSpotStatusHtml(list[i]);
+    if(accuracy>60) toast(`⚠️ GPS 오차가 커요(±${Math.round(accuracy)}m). 건물 밖 하늘이 보이는 곳에서 한 번 더 눌러주세요.`);
+    else toast(`📍 ${list[i].name} 위치를 등록했어요!`);
+  }, ()=>{ const l3=document.getElementById('psStatus'+i); if(l3) l3.innerHTML='❌ 위치를 가져오지 못했어요. 위치 권한을 확인해주세요.'; }, {enableHighAccuracy:true, timeout:20000, maximumAge:0});
+}
+function preSpotsAdminHtml(){
+  const list=getPreStampList();
+  return `<label class="field">📍 우리 동네 스탬프 위치 등록 (사전연습)</label>
+    <p style="font-size:11.5px; color:var(--ink-soft); margin:0 0 10px; line-height:1.5;">각 장소 <b>바로 앞(건물 밖)</b>에 서서 <b>"지금 여기로 등록"</b>을 누르면 선생님 휴대폰 GPS 위치가 저장되고, 학생들 폰에도 자동으로 반영돼요. 장소 이름도 바꿀 수 있어요(이름은 아래 저장 버튼으로 저장).</p>
+    ${list.map((g,i)=>`<div style="margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid #f0f0f0;">
+      <div style="display:flex; gap:6px; align-items:center;">
+        <span style="font-size:18px;">${g.icon||'📍'}</span>
+        <input type="text" class="psName" data-idx="${i}" value="${escAttr(g.name)}" style="flex:1;">
+        <button class="btn ghost sm" style="flex-shrink:0;" onclick="registerPreSpot(${i})">📍 지금 여기로 등록</button>
+      </div>
+      <div id="psStatus${i}" style="font-size:11.5px; margin-top:5px;">${preSpotStatusHtml(g)}</div>
+    </div>`).join('')}<hr class="dashed">`;
 }
 function missionPhotoHtml(){
   const done=getPhotoChallenges(), tripChallenges=PHOTO_CHALLENGES.filter(c=>!c.pre);
@@ -869,7 +930,7 @@ function viewPre(){
   const done=getPhotoChallenges();
   const doneQ=preQuizzes.filter(set=>quizSetProgress(set).done===quizSetProgress(set).total).length;
   const donePh=prePhotos.filter(c=>done[c.id]).length;
-  const preStamps=getPreStamps(), donePs=Object.keys(preStamps).length;
+  const preStamps=getPreStamps(), preList=getPreStampList(), donePs=preList.filter(g=>preStamps[g.name]).length;
   let html=`<div class="wrap">
     <div class="banner info">📚 <b>여행 전 사전학습</b> · 교실에서 미리 해보면서 일본 여행도 준비하고, 앱 사용법도 익혀봐요! 여기서 얻는 점수도 랭킹에 그대로 합산돼요.</div>
     <div class="stats" style="grid-template-columns:repeat(3,1fr);">
@@ -891,13 +952,14 @@ function viewPre(){
   });
   html+=`<div class="section-title" style="margin-top:16px;">🏅 우리 동네 스탬프</div>
     <div class="card"><h3>🚩 학교 근처 스탬프 미리 연습</h3>
-      <div class="stats" style="grid-template-columns:repeat(3,1fr); margin-top:10px;"><div class="stat"><b>${donePs}</b><span>획득</span></div><div class="stat"><b>${PRE_STAMPS.length}</b><span>전체</span></div><div class="stat"><b>${preStampPointsEarned()}</b><span>스탬프 점수</span></div></div>
-      <p style="margin-top:10px;">우리 학교 근처 장소에 가면 GPS로 스탬프가 찍혀요 (약 ${PRE_STAMP_RADIUS}m 이내). 일본에서 쓸 스탬프 랠리를 미리 연습해봐요!</p>
+      <div class="stats" style="grid-template-columns:repeat(3,1fr); margin-top:10px;"><div class="stat"><b>${donePs}</b><span>획득</span></div><div class="stat"><b>${preList.length}</b><span>전체</span></div><div class="stat"><b>${preStampPointsEarned()}</b><span>스탬프 점수</span></div></div>
+      <p style="margin-top:10px;">우리 학교 근처 장소 바로 앞(약 ${PRE_STAMP_RADIUS}m 이내)에 가서 버튼을 누르면 GPS로 스탬프가 찍혀요. 일본에서 쓸 스탬프 랠리를 미리 연습해봐요!</p>
+      ${preStampReady()?'':`<div class="banner" style="margin-top:10px;">⏳ 선생님이 아직 일부 장소의 위치를 등록하지 않았어요. 등록이 끝나면 정확하게 작동해요.</div>`}
       <button class="btn gold block" style="margin-top:10px;" onclick="tryPreStamp()">📍 지금 위치로 스탬프 받기</button>
       <div id="preGpsStatus" style="font-size:12px; color:var(--ink-soft); margin-top:8px;"></div>
-      ${donePs===PRE_STAMPS.length?`<div class="banner" style="margin-top:10px;">🎉 우리 동네 스탬프를 다 모았어요!</div>`:''}
+      ${donePs===preList.length?`<div class="banner" style="margin-top:10px;">🎉 우리 동네 스탬프를 다 모았어요!</div>`:''}
     </div>
-    <div class="pgrid2">${PRE_STAMPS.map(g=>{ const on=!!preStamps[g.name]; return `<div class="stampcard ${on?'on':''}"><div class="stampicon">${g.icon}</div><div class="stampname">${g.name}</div><div class="stamppts">${on?'✓ 획득':'+'+g.points+'점'}</div></div>`; }).join('')}</div>
+    <div class="pgrid2">${preList.map(g=>{ const on=!!preStamps[g.name]; return `<div class="stampcard ${on?'on':''}"><div class="stampicon">${g.icon}</div><div class="stampname">${g.name}</div><div class="stamppts">${on?'✓ 획득':'+'+g.points+'점'}</div></div>`; }).join('')}</div>
     <div class="section-title" style="margin-top:16px;">🇯🇵 일본어 표현 익히기</div>
     <div class="card"><p>여행에서 바로 쓸 수 있는 인사말과 표현을 미리 외워두면 훨씬 든든해요! 배운 표현마다 점수가 쌓여요.</p><button class="btn gold block" style="margin-top:10px;" onclick="ui.tab='jp'; renderAll();">일본어 탭으로 이동 →</button></div>
     <div class="section-title" style="margin-top:16px;">🏆 랭킹 미리보기</div>
@@ -1391,10 +1453,11 @@ function openAdminPanel(){
   const roster=lsGet('roster', ROSTER_DEFAULT), teacher=lsGet('teacher', TEACHER_DEFAULT), principal=lsGet('principal', PRINCIPAL_DEFAULT), school=lsGet('school_contact', SCHOOL_CONTACT_DEFAULT);
   const pairs=getBusPairs();
   openSheet(`<button class="closeX" onclick="closeModal()">✕</button><h3>⚙️ 관리자 설정</h3>
+    ${preSpotsAdminHtml()}
     <label class="field">우리 반 학생 명단 (${TRIP.studentCount}명)</label>
     <div>${roster.map(s=>`<div style="display:flex; gap:6px; margin-bottom:8px;">
         <input type="text" value="${escAttr(s.name)}" class="rname" style="flex:1;">
-        <select class="rgender" style="border:1.5px solid var(--line); border-radius:11px; padding:0 8px; background:var(--paper);">
+        <select class="rgender" style="width:72px; flex:0 0 72px; border:1.5px solid var(--line); border-radius:11px; padding:0 8px; background:var(--paper);">
           <option value="남" ${s.gender==='남'?'selected':''}>남</option><option value="여" ${s.gender==='여'?'selected':''}>여</option>
         </select></div>`).join('')}</div>
     <hr class="dashed"><label class="field">🚌 버스 짝꿍 위치 지정 (1~12열)</label>
@@ -1453,6 +1516,7 @@ function saveAdmin(){
       roster: roster, bus_pairs: pairs, teacher: teacherInfo, principal: principalInfo, school_contact: schoolInfo, updatedAt: Date.now()
     }, {merge:true}).catch(e=>console.warn("설정 전송 실패", e));
   }
+  if(document.querySelector('.psName')) savePreSpots(preSpotsFromPanel()); // 스탬프 장소 이름 변경 저장
   toast('저장했어요!'); closeModal(); renderAll();
 }
 function confirmReset(){ if(confirm('이 기기에 저장된 모든 기록(퀴즈, 스탬프, 사진, 용돈 등)을 초기화할까요?')) resetAllData(); }
@@ -1469,6 +1533,7 @@ function init(){
           if(data.bus_pairs) lsSet('bus_pairs', data.bus_pairs);
           if(data.teacher) lsSet('teacher', data.teacher);
           if(data.principal) lsSet('principal', data.principal);
+          if(Array.isArray(data.pre_stamp_spots) && data.pre_stamp_spots.length) lsSet('pre_stamp_spots', data.pre_stamp_spots);
           if(data.school_contact) lsSet('school_contact', data.school_contact);
           renderAll();
         }
